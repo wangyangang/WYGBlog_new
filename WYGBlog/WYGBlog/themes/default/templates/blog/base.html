@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}
+        首页
+    {% endblock %} - WYG博客</title>
+</head>
+<body>
+<a href="{% url 'index' %}">首页</a> - <a href="/admin">管理</a> - <a href="/about">关于</a>
+<hr>
+
+<div>
+    {% for nav_category in nav_categories %}
+        <a href="{% url 'blog:category' nav_category.id %}">{{ nav_category.name }}</a>
+    {% endfor %}
+    
+</div>
+
+{% block content %}
+{% endblock content%}
+
+<div>
+    {% for normal_category in normal_categories %}
+        <a href="{% url 'blog:category' normal_category.id %}">{{ normal_category.name }}</a>
+    {% endfor %}
+
+</div>
+<hr>
+<!--侧边栏-->
+<div>侧边栏
+    {% for sidebar in sidebars %}
+        <h4>{{ sidebar.title }}</h4>
+        {% if sidebar.display_type == 1 %}
+            {{ sidebar.content_html|safe }}
+        {% else %}
+            {{ sidebar.content_html }}
+        {% endif %}
+    {% endfor %}
+</div>
+</body>
+</html>

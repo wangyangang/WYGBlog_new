@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}首页{% endblock %} - WYG博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{#    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.css">#}
+    <link rel="stylesheet" href="{% static 'bootstrap-4.0.0-dist/css/bootstrap.css' %}">
+    <style>
+        .post{
+            margin-bottom: 5px;     //配置每个post卡片下面的间隔
+        }
+    </style>
+    {% block extra_head %}
+    
+    {% endblock %}
+</head>
+<body>
+    <div class="container head">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a href="/" class="navbar-brand">首页</a>
+            <a href="/admin" class="navbar-brand">管理</a>
+            <a href="{% url 'blog:links' %}" class="navbar-brand">友链</a>
+            <a href="{% url 'blog:about' %}" class="navbar-brand">关于</a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    {% for nav_category in nav_categories %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'blog:category' nav_category.id %}">{{ nav_category.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <form action="{% url 'blog:search' %}" class="form-inline my-2 my-lg-0" method="get">
+                    <input type="search" class="form-control mr-sm-2"
+                           placeholder="Search" aria-label="Search" name="keyword" value="{{ keyword }}">
+                    <button class="btn btn-outline-success" type="submit">搜索</button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="jumbotron">
+            <h1 class="display-4">WYGBlog</h1>
+            <p class="lead">基于Django的多人博客系统</p>
+        </div>
+    </div>
+
+    <div class="container main">
+        <div class="row">
+            <div class="col-9 post-list">
+                {% block content %}
+
+                {% endblock %}
+            </div>
+            <div class="col-3">
+                {% block sidebar %}
+                    {% for sidebar in sidebars %}
+                        <div class="card sidebar">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ sidebar.title }}</h4>
+                                <p>
+                                    {% if sidebar.display_type == 1 %}
+                                        {{ sidebar.content_html|safe }}
+                                    {% else %}
+                                        {{ sidebar.content_html }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        {% block footer %}
+            <div class="container">
+                <hr>
+                <nav class="nav category">
+                    {% for normal_category in normal_categories %}
+                        <a href="{% url 'blog:category' normal_category.id %}" class="nav-link">{{ normal_category.name }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+            <div class="container power">
+                <span class="text-muted">Power by WYGBlog@wangyangang</span>
+            </div>
+        {% endblock %}
+    </footer>
+</body>
+</html>

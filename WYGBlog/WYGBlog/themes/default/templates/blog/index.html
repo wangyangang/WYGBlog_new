@@ -1,0 +1,36 @@
+{% extends "blog/base.html" %}
+
+{% block title %}
+    {% if category %}
+        分类页：{{ category.name }}
+    {% elif tag %}
+        标签页：{{ tag.name }}
+    {% else %}
+        首页
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <ul>
+        {% for post in posts %}
+            <li>
+                <a href="{% url 'blog:post' post.id %}">{{ post.title }}</a>
+                <div style="font-size: 13px; font-family: Damascus; color:gray;">
+                    <span>作者:{{ post.owner.username }}</span>&nbsp;
+                    <span>分类:<a href="{% url 'blog:category' post.category.id %}">{{ post.category.name }}</a></span>
+                    <span>{{ post.created_time|date:'m-d-Y H:i' }}</span>
+                </div>
+                <p>{{ post.desc }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!--分页-->
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">上一页</a>
+    {% endif %}
+    Page {{ page_obj.number }} of {{ paginator.num_pages }}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">下一页</a>
+    {% endif %}
+{% endblock %}

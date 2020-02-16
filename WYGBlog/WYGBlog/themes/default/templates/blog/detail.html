@@ -1,0 +1,26 @@
+{% extends "blog/base.html" %}
+
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+{% block content %}
+    {% if post %}
+        <h1>{{ post.title }}</h1>
+        <div style="font-family: Damascus;font-size: 13px;color: gray;">
+            <span>分类: <a href="{% url 'blog:category' post.category.id %}">{{ post.category.name }}</a></span>
+            <span>作者:{{ post.owner.username }}</span>
+        </div>
+        <hr>
+        <p>
+            {{ post.content }}
+        </p>
+        <!--标签-->
+        <div>标签：
+            {% for t in post.tag.all %}
+                <span> <a href="{% url 'blog:tag' t.id %}">{{ t.name }}</a></span>
+            {% endfor %}
+        </div>
+        <hr>
+    {% endif %}
+{% endblock %}

@@ -11,7 +11,7 @@ class Comment(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    target = models.ForeignKey(Post, verbose_name='评论目标', on_delete=models.CASCADE)
+    target = models.CharField(max_length=100, verbose_name='评论目标')
     content = models.TextField(verbose_name='内容')
     nickname = models.CharField(max_length=50, verbose_name='昵称')
     website = models.URLField(verbose_name='网站')
@@ -20,6 +20,13 @@ class Comment(models.Model):
                                          choices=STATUS_ITEMS,
                                          verbose_name='状态')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    def __str__(self):
+        return self.content if len(self.content) <= 10 else self.content[:10]
+
+    @classmethod
+    def get_by_target(cls, target):
+        return cls.objects.filter(target=target, status=cls.STATUS_NORMAL)
 
     class Meta:
         verbose_name = verbose_name_plural = '评论'

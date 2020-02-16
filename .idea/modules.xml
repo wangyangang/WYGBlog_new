@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/WYGBlog.iml" filepath="$PROJECT_DIR$/.idea/WYGBlog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../docker_django_demo/.idea/docker_django_demo.iml" filepath="$PROJECT_DIR$/../docker_django_demo/.idea/docker_django_demo.iml" />
     </modules>
   </component>
 </project>

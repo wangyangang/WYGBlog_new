@@ -1,0 +1,35 @@
+{% extends "blog/base.html" %}
+{% load comment_block %}
+
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/googlecode.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+{% endblock %}
+{% block content %}
+    {% if post %}
+        <h1>{{ post.title }}</h1>
+        <div style="font-family: Damascus;font-size: 13px;color: gray;">
+            <span>分类: <a href="{% url 'blog:category' post.category.id %}">{{ post.category.name }}</a></span>
+            <span>作者: <a href="{% url 'blog:author' post.owner.id %}">{{ post.owner.username }}</a></span>
+        </div>
+        <hr>
+        <p>
+            {{ post.content_html|safe }}
+        </p>
+        <!--标签-->
+        <div>标签：
+            {% for t in post.tag.all %}
+                <span> <a href="{% url 'blog:tag' t.id %}">{{ t.name }}</a></span>
+            {% endfor %}
+        </div>
+        <hr>
+
+        {% comment_block request.path %}
+    {% endif %}
+
+{% endblock %}
