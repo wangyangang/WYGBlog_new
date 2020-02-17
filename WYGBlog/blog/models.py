@@ -88,6 +88,7 @@ class Post(models.Model):
 
     pv = models.PositiveIntegerField(default=1)
     uv = models.PositiveIntegerField(default=1)
+    is_md = models.BooleanField(default=False, verbose_name='markdown语法')
 
     @classmethod
     def hot_posts(cls):
@@ -95,7 +96,11 @@ class Post(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        self.content_html = mistune.markdown(self.content)
+        if self.is_md:
+            self.content_html = mistune.markdown(self.content)
+        else:
+            self.content_html = self.content
+
         super().save(force_insert=False, force_update=False, using=None,
                      update_fields=None)
 

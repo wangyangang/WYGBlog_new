@@ -52,6 +52,7 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
 
 @admin.register(Post)
 class PostAdmin(BaseOwnerAdmin):
+    form = PostAdminForm
     list_display = ('title', 'category', 'status',
                     'created_time', 'owner', 'operator')
     list_display_links = []
@@ -77,21 +78,19 @@ class PostAdmin(BaseOwnerAdmin):
             'description': '基础配置描述',
             'fields': (
                 ('title', 'category'),
-                'status',
+                'status', 'tag',
             ),
         }),
         ('内容', {
             'fields': (
                 'desc',
+                'is_md',
                 'content',
+                'content_ck',
+                'content_md'
             ),
         }),
-        ('额外信息', {
-            'classes': ('collapse',),
-            'fields': ('tag',),
-        })
     )
-    form = PostAdminForm
 
     filter_vertical = ('tag',)
 
@@ -101,17 +100,19 @@ class PostAdmin(BaseOwnerAdmin):
     operator.short_description = '编辑'
 
     # 编辑文章时，tag字段只能从当前用户的tag里进行选择
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == 'tag':
-            kwargs['queryset'] = Tag.objects.filter(owner=request.user)
-        return super().formfield_for_manytomany(db_field, request, **kwargs)
+    # def formfield_for_manytomany(self, db_field, request, **kwargs):
+    #     if db_field.name == 'tag':
+    #         kwargs['queryset'] = Tag.objects.filter(owner=request.user)
+    #     return super().formfield_for_manytomany(db_field, request, **kwargs)
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        """编辑文章时，category字段只能从当前用户的category里进行选择"""
-        if db_field.name == 'category':
-            kwargs['queryset'] = Category.objects.filter(owner=request.user)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
+    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    #     """编辑文章时，category字段只能从当前用户的category里进行选择"""
+    #     if db_field.name == 'category':
+    #         kwargs['queryset'] = Category.objects.filter(owner=request.user)
+    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    # form_layout = (
+    #     Fieldset()
+    # )
 
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
