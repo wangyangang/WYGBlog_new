@@ -1,9 +1,11 @@
 from django.shortcuts import render, HttpResponse
 from django.shortcuts import get_object_or_404
 import os
+from django.core.cache import cache
+from datetime import date
 from django.views import View
 from django.views.generic import DetailView, ListView
-from django.db.models import Q
+from django.db.models import Q, F
 
 from . import models
 from config.models import SideBar, Link
@@ -61,6 +63,32 @@ class PostDetailView(CommonViewMixin, DetailView):
     queryset = models.Post.latest_posts()
     context_object_name = 'post'
     pk_url_kwarg = 'post_id'
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        self.handle_visited()
+        return response
+
+    def handle_visited(self):
+        increase_pv = False
+        increase_uv = False
+        uid = self.request.uid
+        pv_key = 'pv:%s:%s' % (uid, self.request.path)
+        uv_key = 'uv:%s:%s:%s' % (uid, str(date.today()), self.request.path)
+        if not cache.get(pv_key):
+            increase_pv = True
+            cache.set(pv_key, 1, 1*60)
+
+        if not cache.get(uv_key):
+            increase_uv = True
+            cache.set(pv_key, 1, 24*60*60)
+
+        if increase_pv and increase_uv:
+            models.Post.objects.filter(pk=self.object.id).update(pv=F('pv') + 1, uv=F('uv') + 1)
+        elif increase_pv:
+            models.Post.objects.filter(pk=self.object.id).update(pv=F('pv') + 1)
+        elif increase_uv:
+            models.Post.objects.filter(pk=self.object.id).update(uv=F('uv') + 1)
 
 
 class LinkListView(CommonViewMixin, ListView):

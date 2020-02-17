@@ -16,11 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path, include
 from django.views.generic import TemplateView
+from django.contrib.sitemaps import views as sitemap_views
+
 from blog.views import IndexView
+from blog.rss import LatestPostFeed
+from blog.sitemap import PostSitemap
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('blog/', include(('blog.urls', 'blog'), namespace='blog')),
     path('comment/', include(('comment.urls', 'comment'), namespace='comment')),
+    re_path(r'^rss|feed/', LatestPostFeed(), name='rss'),
+    re_path(r'^sitemap\.xml$', sitemap_views.sitemap, {'sitemaps': {'posts': PostSitemap}}),
     path('', IndexView.as_view(), name='index')
 ]
