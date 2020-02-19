@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'rest_framework',
+    'mdeditor',
 ]
 
 MIDDLEWARE = [
@@ -154,6 +155,5 @@ REST_FRAMEWORK = {
 
     # 分页
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 5
-
+    'PAGE_SIZE': 10
 }

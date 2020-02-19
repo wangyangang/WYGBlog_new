@@ -35,6 +35,9 @@ class PostViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """这里重写获取文章详情页的接口,达到不同接口使用不同serializer的目的"""
         self.serializer_class = PostDetailSerializer
+        from django.urls import reverse
+        print(reverse('blog:api:post-detail', args=[1]))
+        print(reverse('blog:api:posts'))
         return super().retrieve(request, *args, **kwargs)
 
     def filter_queryset(self, queryset):

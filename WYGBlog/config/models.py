@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
@@ -24,6 +25,10 @@ class Link(models.Model):
 
     def __str__(self):
         return self.title
+
+    @classmethod
+    def get_all_by_user(cls, user):
+        return cls.objects.filter(status=cls.STATUS_NORMAL, owner=user)
 
     class Meta:
         verbose_name = verbose_name_plural = '友链'
@@ -53,7 +58,7 @@ class SideBar(models.Model):
     content = models.CharField(max_length=500,
                                blank=True,
                                verbose_name='内容',
-                               help_text='如果展示的部署HTML类型，可为空')
+                               help_text='如果展示的部署HTML类型，不可为空')
     status = models.PositiveIntegerField(default=STATUS_SHOW,
                                          choices=STATUS_ITEMS,
                                          verbose_name='状态')
@@ -73,21 +78,50 @@ class SideBar(models.Model):
         if self.display_type == self.DISPLAY_HTML:
             return self.content
         elif self.display_type == self.DISPLAY_LATEST:
-            context = {'posts': Post.latest_posts()}
+            posts = Post.latest_posts(self.owner)
+            posts = posts if posts.count() <= 7 else posts[:7]
+            context = {'posts': posts}
             result = render_to_string('config/blocks/sidebar_posts.html', context)
         elif self.display_type == self.DISPLAY_HOTEST:
-            context = {'posts': Post.hot_posts()}
+            print(self.owner)
+            context = {'posts': Post.hot_posts(self.owner)}
             result = render_to_string('config/blocks/sidebar_posts.html', context)
         elif self.display_type == self.DISPLAY_COMMENT:
-            context = {'comments': Comment.objects.filter(status=Comment.STATUS_NORMAL)}
+            comments = Comment.latest_comments(self.owner)
+            comments = comments if comments.count() <= 7 else comments[:7]
+            context = {'comments': comments}
             result = render_to_string('config/blocks/sidebar_comments.html', context)
         return result
 
     @classmethod
-    def get_all(cls):
-        return cls.objects.filter(status=cls.STATUS_SHOW)
+    def get_all_by_user(cls, user):
+
+        return cls.objects.filter(status=cls.STATUS_SHOW, owner=user)
 
     class Meta:
         verbose_name = verbose_name_plural = '侧边栏'
+
+
+class TopBar(models.Model):
+    STATUS_SHOW = 1
+    STATUS_HIDE = 0
+    STATUS_ITEMS = (
+        (STATUS_SHOW, '显示'),
+        (STATUS_HIDE, '隐藏')
+    )
+    DISPLAY_URL = 1  # 显示一个链接
+    DISPLAY_ARCHIVE = 2  # 归档
+    DISPLAY_MY_BLOG = 3  # 我的博客
+    DISPLAY_ADMIN = 4  # 管理
+    DISPLAY_HOME = 5  # 首页链接
+
+    DISPLAY_TYPE = (
+        (DISPLAY_URL, '超链接'),
+        (DISPLAY_MY_BLOG, '我的博客'),
+        (DISPLAY_ARCHIVE, '归档'),
+        (DISPLAY_ADMIN, '管理'),
+    )
+
+
 
 

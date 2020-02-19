@@ -9,9 +9,9 @@ from rest_framework.documentation import include_docs_urls
 
 router = DefaultRouter()
 # 文章的列表接口和详情接口
-router.register(r'post', PostViewSet, basename='api-post')
+router.register(r'post', PostViewSet)
 # 分类的列表接口和详情接口
-router.register('category', CategoryViewSet, basename='api-category')
+router.register(r'category', CategoryViewSet)
 
 urlpatterns = [
     re_path(r'^category/(?P<category_id>\d+)/$', views.CategoryView.as_view(), name='category'),
@@ -29,7 +29,8 @@ urlpatterns = [
     # 这样定义了之后就有了两个只读的接口，
     # /api/post/
     # /api/post/<post_id>/
-    re_path(r'^api/', include((router.urls, 'api'), namespace='api')),
+    re_path(r'^api/', include((router.urls, 'router'), namespace='api')),
+    # re_path(r'^api/', include(router.urls)),
     # 配置接口文档  !!!!!!!!!!!!!有问题，访问/blog/api/docs/ 报错！
     re_path(r'^api/docs/', include_docs_urls(title='WYGBlog apis')),
 ]

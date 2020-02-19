@@ -7,9 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 {#    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.css">#}
     <link rel="stylesheet" href="{% static 'bootstrap-4.0.0-dist/css/bootstrap.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
     <style>
         .post{
             margin-bottom: 5px;     //配置每个post卡片下面的间隔
+        }
+        .tag-font{
+            font-family: Damascus;font-size: 14px;color: gray;
         }
     </style>
     {% block extra_head %}
@@ -84,8 +88,9 @@
                     {% endfor %}
                 </nav>
             </div>
-            <div class="container power">
+            <div class="container power" style="text-align: center;">
                 <span class="text-muted">Power by WYGBlog@wangyangang</span>
+                <span class="text-muted">京ICP备19041399号</span>
             </div>
         {% endblock %}
     </footer>

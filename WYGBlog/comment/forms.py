@@ -25,7 +25,8 @@ class CommentForm(forms.ModelForm):
                               max_length=500,
                               widget=forms.widgets.Textarea(
                                   attrs={'rows': 6, 'cols': 60, 'class': 'form-control'}
-                              ))
+                              ),
+                              help_text='请输入不少于10个字符')
 
     def clean_content(self):
         content = self.cleaned_data.get('content')

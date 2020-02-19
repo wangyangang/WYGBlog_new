@@ -16,16 +16,18 @@ from comment.forms import CommentForm
 class CommonViewMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'sidebars': SideBar.get_all()})
-        context.update(models.Category.get_navs())
+        context.update({'sidebars': SideBar.get_all_by_user(self.request.user)})
+        context.update(models.Category.get_navs_by_user(self.request.user))
         return context
 
 
 class IndexView(CommonViewMixin, ListView):
-    queryset = models.Post.latest_posts()
-    paginate_by = 5
+    paginate_by = 8
     context_object_name = 'posts'
     template_name = 'blog/index.html'
+
+    def get_queryset(self):
+        return models.Post.latest_posts(self.request.user)
 
 
 class CategoryView(IndexView):
@@ -58,9 +60,8 @@ class TagView(IndexView):
 
 
 class PostDetailView(CommonViewMixin, DetailView):
-    # model = models.Post
     template_name = 'blog/detail.html'
-    queryset = models.Post.latest_posts()
+    # queryset = models.Post.latest_posts()
     context_object_name = 'post'
     pk_url_kwarg = 'post_id'
 
@@ -68,6 +69,9 @@ class PostDetailView(CommonViewMixin, DetailView):
         response = super().get(request, *args, **kwargs)
         self.handle_visited()
         return response
+
+    def get_queryset(self):
+        return models.Post.latest_posts(self.request.user)
 
     def handle_visited(self):
         increase_pv = False
@@ -95,6 +99,9 @@ class LinkListView(CommonViewMixin, ListView):
     template_name = 'config/links.html'
     queryset = Link.objects.filter(status=Link.STATUS_NORMAL)
     context_object_name = 'links'
+
+    def get_queryset(self):
+        return Link.get_all_by_user(self.request.user)
 
 
 class SearchView(IndexView):

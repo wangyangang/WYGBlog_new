@@ -5,7 +5,7 @@ from .models import Post, Category
 
 class PostSerializer(serializers.ModelSerializer):
     """文章列表接口需要的serializer"""
-    #url = serializers.HyperlinkedIdentityField(view_name='blog:api-category-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='blog:post-detail')
 
     category = serializers.SlugRelatedField(read_only=True, slug_field='name')
     tag = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
@@ -14,8 +14,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        # fields = ['url', 'id', 'title', 'category', 'tag', 'owner', 'created_time']
-        fields = ['id', 'title', 'category', 'tag', 'owner', 'created_time']
+        fields = ['url', 'id', 'title', 'category', 'tag', 'owner', 'created_time']
+        # fields = ['id', 'title', 'category', 'tag', 'owner', 'created_time']
 
 
 class PostDetailSerializer(PostSerializer):

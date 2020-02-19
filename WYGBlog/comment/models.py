@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from blog.models import Post
 
@@ -27,6 +28,19 @@ class Comment(models.Model):
     @classmethod
     def get_by_target(cls, target):
         return cls.objects.filter(target=target, status=cls.STATUS_NORMAL)
+
+    @classmethod
+    def latest_comments(cls, owner):
+        current_user_posts = owner.post_set.all()  # 当前用户的所有文章
+        posts_urls = []
+
+        from django.urls import reverse
+        for post in current_user_posts:
+            posts_urls.append(reverse('blog:post', args=[post.id]))
+        ret = cls.objects.filter(status=cls.STATUS_NORMAL)
+        ret = ret.filter(Q(target__in=posts_urls) | Q(target__icontains='links'))
+        return ret
+        # return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-created_time')
 
     class Meta:
         verbose_name = verbose_name_plural = '评论'

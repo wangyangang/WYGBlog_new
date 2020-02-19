@@ -36,5 +36,6 @@ urlpatterns = [
             name='category-autocomplete'),
     re_path(r'^tag-autocomplete/$', TagAutocomplete.as_view(), name='tag-autocomplete'),
     re_path(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    path(r'mdeditor/', include('mdeditor.urls')),
     path('', IndexView.as_view(), name='index')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -4,7 +4,7 @@
             {% csrf_token%}
             <input type="hidden" name="target" value="{{ target }}">
             {{ comment_form }}
-            <input type="submit" value="写好了!">
+            <input type="submit" value="提交评论" class="btn-block btn-primary btn-group-lg">
         </form>
 
         <!--评论列表-->

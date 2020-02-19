@@ -17,7 +17,7 @@ class PostInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(BaseOwnerAdmin):
-    list_display = ('name', 'status', 'is_nav', 'created_time', 'post_count')
+    list_display = ('name', 'status', 'is_nav', 'created_time', 'post_count', 'owner')
     fields = ('name', 'status', 'is_nav')
     # inlines = [PostInline]  # 控制在分类页面可以编辑文章(在同一页面编辑关联数据)
 
@@ -29,7 +29,7 @@ class CategoryAdmin(BaseOwnerAdmin):
 
 @admin.register(Tag)
 class TagAdmin(BaseOwnerAdmin):
-    list_display = ('name', 'status', 'created_time')
+    list_display = ('name', 'status', 'created_time', 'owner')
     fields = ('name', 'status')
 
 
@@ -65,34 +65,25 @@ class PostAdmin(BaseOwnerAdmin):
 
     save_on_top = True
 
-    # fields = (
-    #     ('category', 'title'),
-    #     'desc',
-    #     'status',
-    #     'content',
-    #     'tag'
-    # )
-
     fieldsets = (
+        ('内容', {
+            'fields': (
+                'title',
+                'is_md',
+                'content_ck',
+                'content_md',
+                'content',
+            ),
+        }),
         ('基础配置', {
             'description': '基础配置描述',
             'fields': (
-                ('title', 'category'),
-                'status', 'tag',
-            ),
-        }),
-        ('内容', {
-            'fields': (
-                'desc',
-                'is_md',
-                'content',
-                'content_ck',
-                'content_md'
+                ('category', 'status'), 'tag', 'desc',
             ),
         }),
     )
 
-    filter_vertical = ('tag',)
+    filter_horizontal = ('tag',)
 
     def operator(self, obj):
         return format_html('<a href="{}">编辑</a>',
@@ -100,20 +91,23 @@ class PostAdmin(BaseOwnerAdmin):
     operator.short_description = '编辑'
 
     # 编辑文章时，tag字段只能从当前用户的tag里进行选择
-    # def formfield_for_manytomany(self, db_field, request, **kwargs):
-    #     if db_field.name == 'tag':
-    #         kwargs['queryset'] = Tag.objects.filter(owner=request.user)
-    #     return super().formfield_for_manytomany(db_field, request, **kwargs)
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'tag':
+            kwargs['queryset'] = Tag.objects.filter(owner=request.user)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
-    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    #     """编辑文章时，category字段只能从当前用户的category里进行选择"""
-    #     if db_field.name == 'category':
-    #         kwargs['queryset'] = Category.objects.filter(owner=request.user)
-    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
-    # form_layout = (
-    #     Fieldset()
-    # )
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """编辑文章时，category字段只能从当前用户的category里进行选择"""
+        if db_field.name == 'category':
+            kwargs['queryset'] = Category.objects.filter(owner=request.user)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ['object_repr', 'object_id', 'action_flag', 'user', 'change_message']
+
+
+admin.site.site_header = 'WYGBlog后台管理系统'  # 后台管理主界面的h1标题
+admin.site.site_title = 'WYGBlog后台管理'  # 后台管理page的title，如 "选择分类来修改 | WYGBlog后台管理"
+# admin.site.index_title = 'abc'  # 后台管理主界面的副标题
