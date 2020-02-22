@@ -1,23 +1,34 @@
-from django.shortcuts import render, HttpResponse
-from django.shortcuts import get_object_or_404
 import os
-from django.core.cache import cache
 from datetime import date
+
+from django.shortcuts import render, HttpResponse
+from django.shortcuts import get_object_or_404, Http404
+from django.urls import reverse
+from django.core.cache import cache
 from django.views import View
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, RedirectView
 from django.db.models import Q, F
+from django.shortcuts import redirect
+from django.contrib.auth.models import User
 
 from . import models
-from config.models import SideBar, Link
+from config.models import SideBar, Link, TopBar
 from comment.models import Comment
 from comment.forms import CommentForm
+from config.models import BlogSettings
 
 
 class CommonViewMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'sidebars': SideBar.get_all_by_user(self.request.user)})
-        context.update(models.Category.get_navs_by_user(self.request.user))
+        blog_name = self.kwargs.get('blog_name')
+
+        context.update({'sidebars': SideBar.get_all_by_blog_name(blog_name)})  # 侧边栏
+        context.update(models.Category.get_by_blog_name(blog_name))  # 分类导航
+        context.update({'top_bars': TopBar.get_by_blog_name(blog_name)})  # 顶部菜单
+        blog_setting = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
+        context.update(dict(blog_setting))  # 用户配置
+        context.update({'blog_name': blog_name})
         return context
 
 
@@ -26,8 +37,31 @@ class IndexView(CommonViewMixin, ListView):
     context_object_name = 'posts'
     template_name = 'blog/index.html'
 
-    def get_queryset(self):
-        return models.Post.latest_posts(self.request.user)
+    def get_queryset_cache_key(self):
+        """子类定制缓存key"""
+        cache_key = "index_{page}".format(page=self.page_kwarg)
+        return cache_key
+
+    def get_queryset_data(self):
+        """子类定制获取数据的方法"""
+        posts = models.Post.latest_posts(self.request.user)
+        return posts
+
+    def get_queryset_from_cache(self, cache_key):
+        value = cache.get(cache_key)
+        if value:
+            return value
+        else:
+            posts = self.get_queryset_data()
+            cache.set(cache_key, posts)
+            return posts
+
+    def get_queryset(self, **kwargs):
+        print(kwargs.get('blog_name', ''))
+        key = self.get_queryset_cache_key()
+        value = self.get_queryset_from_cache(key)
+        posts = models.Post.latest_posts(self.request.user)
+        return posts
 
 
 class CategoryView(IndexView):
@@ -59,6 +93,10 @@ class TagView(IndexView):
         return queryset.filter(tag__id=tag_id)
 
 
+class ArchiveView(IndexView):
+    template_name = 'blog/archive.html'
+
+
 class PostDetailView(CommonViewMixin, DetailView):
     template_name = 'blog/detail.html'
     # queryset = models.Post.latest_posts()
@@ -71,7 +109,8 @@ class PostDetailView(CommonViewMixin, DetailView):
         return response
 
     def get_queryset(self):
-        return models.Post.latest_posts(self.request.user)
+        posts = models.Post.latest_posts(self.request.user)
+        return posts
 
     def handle_visited(self):
         increase_pv = False
@@ -94,6 +133,10 @@ class PostDetailView(CommonViewMixin, DetailView):
         elif increase_uv:
             models.Post.objects.filter(pk=self.object.id).update(uv=F('uv') + 1)
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
+
 
 class LinkListView(CommonViewMixin, ListView):
     template_name = 'config/links.html'
@@ -101,7 +144,7 @@ class LinkListView(CommonViewMixin, ListView):
     context_object_name = 'links'
 
     def get_queryset(self):
-        return Link.get_all_by_user(self.request.user)
+        return Link.get_all_by_blog_name(self.request.user)
 
 
 class SearchView(IndexView):
@@ -127,3 +170,15 @@ class AuthorView(IndexView):
 
 class AboutListView(IndexView):
     template_name = 'about.html'
+
+
+# def blog_view(request, username):
+#     if request.method == 'GET':
+#         user = User.objects.filter(username=username)
+#         if user:
+#             return redirect('index')
+#         else:
+#             return HttpResponse('页面不存在')
+
+class Redirect2HomeView(RedirectView):
+    pattern_name = 'home:index'

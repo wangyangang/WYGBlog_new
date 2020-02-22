@@ -3,10 +3,12 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from django.contrib.admin.models import LogEntry
+from django.contrib.auth.models import User, Group
 
 from .models import Category, Tag, Post
 from .adminforms import PostAdminForm
 from baseadmin import BaseOwnerAdmin
+from WYGBlog.admin_site import admin_site
 
 
 class PostInline(admin.TabularInline):
@@ -17,7 +19,7 @@ class PostInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(BaseOwnerAdmin):
-    list_display = ('name', 'status', 'is_nav', 'created_time', 'post_count', 'owner')
+    list_display = ('name', 'status', 'is_nav', 'created_time', 'post_count', 'blog')
     fields = ('name', 'status', 'is_nav')
     # inlines = [PostInline]  # 控制在分类页面可以编辑文章(在同一页面编辑关联数据)
 
@@ -29,7 +31,7 @@ class CategoryAdmin(BaseOwnerAdmin):
 
 @admin.register(Tag)
 class TagAdmin(BaseOwnerAdmin):
-    list_display = ('name', 'status', 'created_time', 'owner')
+    list_display = ('name', 'status', 'created_time', 'blog')
     fields = ('name', 'status')
 
 
@@ -39,7 +41,7 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
     parameter_name = 'owner_category'
 
     def lookups(self, request, model_admin):
-        return Category.objects.filter(owner=request.user).values_list('id', 'name')
+        return Category.objects.filter(blog__name=request.user.username).values_list('id', 'name')
         #return None
 
     def queryset(self, request, queryset):
@@ -54,7 +56,7 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
 class PostAdmin(BaseOwnerAdmin):
     form = PostAdminForm
     list_display = ('title', 'category', 'status',
-                    'created_time', 'owner', 'operator')
+                    'created_time', 'blog', 'operator')
     list_display_links = []
     list_filter = [CategoryOwnerFilter]
     #list_filter = ['category']
@@ -90,16 +92,18 @@ class PostAdmin(BaseOwnerAdmin):
                            reverse('admin:blog_post_change', args=(obj.id,)))
     operator.short_description = '编辑'
 
+    # view_on_site = False
+
     # 编辑文章时，tag字段只能从当前用户的tag里进行选择
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'tag':
-            kwargs['queryset'] = Tag.objects.filter(owner=request.user)
+            kwargs['queryset'] = Tag.objects.filter(blog__name=request.user.username)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """编辑文章时，category字段只能从当前用户的category里进行选择"""
         if db_field.name == 'category':
-            kwargs['queryset'] = Category.objects.filter(owner=request.user)
+            kwargs['queryset'] = Category.objects.filter(blog__name=request.user.username)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -111,3 +115,8 @@ class LogEntryAdmin(admin.ModelAdmin):
 admin.site.site_header = 'WYGBlog后台管理系统'  # 后台管理主界面的h1标题
 admin.site.site_title = 'WYGBlog后台管理'  # 后台管理page的title，如 "选择分类来修改 | WYGBlog后台管理"
 # admin.site.index_title = 'abc'  # 后台管理主界面的副标题
+admin.site.unregister(User)
+admin.site.unregister(Group)
+# admin_site.register(User)
+# admin_site.register(Group)
+#

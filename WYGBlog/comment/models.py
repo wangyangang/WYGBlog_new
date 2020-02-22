@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.db.models import Q
 
 from blog.models import Post
+from config.models import BlogSettings
 
 
 class Comment(models.Model):
@@ -22,8 +24,12 @@ class Comment(models.Model):
                                          verbose_name='状态')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
+    class Meta:
+        verbose_name = verbose_name_plural = '评论'
+
     def __str__(self):
-        return self.content if len(self.content) <= 10 else self.content[:10]
+        # return self.content if len(self.content) <= 10 else self.content[:10]
+        return self.content[:10]
 
     @classmethod
     def get_by_target(cls, target):
@@ -34,15 +40,14 @@ class Comment(models.Model):
         current_user_posts = owner.post_set.all()  # 当前用户的所有文章
         posts_urls = []
 
-        from django.urls import reverse
         for post in current_user_posts:
-            posts_urls.append(reverse('blog:post', args=[post.id]))
-        ret = cls.objects.filter(status=cls.STATUS_NORMAL)
+            posts_urls.append(reverse('blog:post', args=[post.blog.user__username, post.id]))
+        ret = cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-created_time')
+        user_settings = BlogSettings.get_dict_by_user(owner)  # 用户设置
+        display_count = user_settings['sidebar_comment_count']  # 侧边栏评论展示的条数
         ret = ret.filter(Q(target__in=posts_urls) | Q(target__icontains='links'))
-        return ret
+        return ret[:display_count]
         # return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-created_time')
 
-    class Meta:
-        verbose_name = verbose_name_plural = '评论'
 
 

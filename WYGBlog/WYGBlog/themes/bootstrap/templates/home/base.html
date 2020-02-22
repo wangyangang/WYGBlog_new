@@ -1,0 +1,103 @@
+{% load static %}
+{% load cache %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}首页{% endblock %} - WYG博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{#    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.css">#}
+    <link rel="stylesheet" href="{% static 'bootstrap-4.0.0-dist/css/bootstrap.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <style>
+        .post{
+            margin-bottom: 5px;     //配置每个post卡片下面的间隔
+        }
+        .tag-font{
+            font-family: Damascus;font-size: 14px;color: gray;
+        }
+    </style>
+    {% block extra_head %}
+    
+    {% endblock %}
+</head>
+<body>
+    <div class="container head">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            {% for top_bar in top_bars %}
+                {% if top_bar.display_type == 1 %}
+                    <a href="{{ top_bar.link }}" class="navbar-brand" target="_blank">{{ top_bar.name }}</a>
+                {% else %}
+                    <a href="{{ top_bar.link }}" class="navbar-brand">{{ top_bar.name }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    {% for nav_category in nav_categories %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home:category' nav_category.id %}">{{ nav_category.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <form action="{% url 'home:search' %}" class="form-inline my-2 my-lg-0" method="get">
+                    <input type="search" class="form-control mr-sm-2"
+                           placeholder="Search" aria-label="Search" name="keyword" value="{{ keyword }}">
+                    <button class="btn btn-outline-success" type="submit">搜索</button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="jumbotron">
+            <h1 class="display-4">{{ site_name }}</h1>
+            <p class="lead">{{ site_description }}</p>
+        </div>
+    </div>
+
+    <div class="container main">
+        <div class="row">
+            <div class="col-9 post-list">
+                {% block content %}
+
+                {% endblock %}
+            </div>
+            <div class="col-3">
+                {% block sidebar %}
+                    {% for sidebar in sidebars %}
+                        <div class="card sidebar">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ sidebar.title }}</h4>
+                                <p>
+                                    {% if sidebar.display_type == 1 %}  {# 显示html不需要转义 #}
+                                        {{ sidebar.content_html|safe }}
+                                    {% else %}
+                                        {{ sidebar.content_html }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        {% block footer %}
+            <div class="container">
+                <hr>
+                <nav class="nav category">
+                    {% for normal_category in normal_categories %}
+                        <a href="{% url 'home:category' normal_category.id %}" class="nav-link">{{ normal_category.name }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+            <div class="container power" style="text-align: center;">
+                <span class="text-muted">Power by WYGBlog@wangyangang</span>
+                <span class="text-muted">京ICP备19041399号</span>
+            </div>
+        {% endblock %}
+    </footer>
+</body>
+</html>

@@ -24,8 +24,10 @@ SECRET_KEY = 'b@ldd@+uc6eo(2l)xg$2*-em(rf&37_^!6-i!c9m_atjn1fiz7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
+# AUTH_USER_MODEL = 'django.contrib.auth.models.User'
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,12 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'home',  #  主站
+    'homeconfig',  # 主站的配置，侧边栏，分类等
     'blog',
+    'user',
     'config',
     'comment',
     'crispy_forms',
-    'dal',
-    'dal_select2',
     'ckeditor',
     'ckeditor_uploader',
     'rest_framework',
@@ -58,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'WYGBlog.middleware.Username2UserMiddleware',
 ]
 
 ROOT_URLCONF = 'WYGBlog.urls'
@@ -157,3 +161,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
 }
+
+LOGIN_URL = ('/admin/login/')

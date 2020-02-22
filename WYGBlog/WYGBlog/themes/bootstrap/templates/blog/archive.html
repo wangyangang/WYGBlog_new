@@ -1,0 +1,33 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}
+    {% if category %}
+        分类页：{{ category.name }}
+    {% elif tag %}
+        标签页：{{ tag.name }}
+    {% else %}
+        首页
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% for post in posts %}
+        <div class="card post">
+            <div class="card-body">
+                <div class="card-link">
+                    <a href="{% url 'blog:post' 'wyg' post.id %}" style="float:left;">{{ post.title }}</a>
+                    <span class="card-link" style="float:right;">{{ post.created_time }}</span>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!--分页-->
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">上一页</a>
+    {% endif %}
+    Page {{ page_obj.number }} of {{ paginator.num_pages }}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">下一页</a>
+    {% endif %}
+{% endblock %}

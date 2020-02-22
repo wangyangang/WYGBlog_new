@@ -21,21 +21,27 @@ from django.contrib.sitemaps import views as sitemap_views
 from blog.views import IndexView
 from blog.rss import LatestPostFeed
 from blog.sitemap import PostSitemap
-from .autocomplete import CategoryAutocomplete, TagAutocomplete
 from django.conf.urls.static import static
 from django.conf import settings
+
+from home.views import HomeListView
+from WYGBlog.admin_site import admin_site
 
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
-    path('blog/', include(('blog.urls', 'blog'), namespace='blog')),
+    path('admin-site/', admin_site.urls, name='admin-site'),
+
+    # path('blog/', include(('blog.urls', 'blog'), namespace='blog')),
+    path('user/', include(('user.urls', 'user'), namespace='user')),
     path('comment/', include(('comment.urls', 'comment'), namespace='comment')),
-    re_path(r'^rss|feed/', LatestPostFeed(), name='rss'),
-    re_path(r'^sitemap\.xml$', sitemap_views.sitemap, {'sitemaps': {'posts': PostSitemap}}),
-    re_path(r'^category-autocomplete/$', CategoryAutocomplete.as_view(),
-            name='category-autocomplete'),
-    re_path(r'^tag-autocomplete/$', TagAutocomplete.as_view(), name='tag-autocomplete'),
-    re_path(r'^ckeditor/', include('ckeditor_uploader.urls')),
-    path(r'mdeditor/', include('mdeditor.urls')),
-    path('', IndexView.as_view(), name='index')
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('rss|feed/', LatestPostFeed(), name='rss'),
+    path('sitemap\.xml/', sitemap_views.sitemap, {'sitemaps': {'posts': PostSitemap}}),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('mdeditor/', include('mdeditor.urls')),
+
+    path('', include(('home.urls', 'home'), namespace='home')),  # 博客园首页
+    path('config/', include(('homeconfig.urls', 'config'), namespace='config')),
+    # re_path(r'^(?P<blog_name>\w+)/$', IndexView.as_view(), name='blog'),  # 个人博客页
+    re_path(r'^(?P<blog_name>\w+)/', include(('blog.urls', 'blog'), namespace='blog')),  # 个人博客页
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,6 +2,11 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+from django.core.exceptions import ValidationError
+from django.core.cache import cache
+from django.contrib.auth.models import AnonymousUser
+
+from home.models import Blog
 
 
 class Link(models.Model):
@@ -20,15 +25,15 @@ class Link(models.Model):
                                          choices=zip(range(1, 6), range(1, 6)),
                                          verbose_name='权重',
                                          help_text='权重高展示顺序靠前')
-    owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, verbose_name='作者', on_delete=models.CASCADE)
     created_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
 
     def __str__(self):
         return self.title
 
     @classmethod
-    def get_all_by_user(cls, user):
-        return cls.objects.filter(status=cls.STATUS_NORMAL, owner=user)
+    def get_all_by_blog_name(cls, blog_name):
+        return cls.objects.filter(status=cls.STATUS_NORMAL, blog__name=blog_name)
 
     class Meta:
         verbose_name = verbose_name_plural = '友链'
@@ -51,6 +56,7 @@ class SideBar(models.Model):
         (DISPLAY_HOTEST, '最热文章'),
         (DISPLAY_COMMENT, '最近评论'),
     )
+    display_index = models.PositiveIntegerField('展示顺序数字大的靠前', default=1, blank=True)
     title = models.CharField('标题', max_length=50)
     display_type = models.PositiveIntegerField(default=1,
                                                choices=SIDE_TYPE,
@@ -62,7 +68,7 @@ class SideBar(models.Model):
     status = models.PositiveIntegerField(default=STATUS_SHOW,
                                          choices=STATUS_ITEMS,
                                          verbose_name='状态')
-    owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, verbose_name='作者', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
 
     def __str__(self):
@@ -77,51 +83,148 @@ class SideBar(models.Model):
         result = ''
         if self.display_type == self.DISPLAY_HTML:
             return self.content
+
         elif self.display_type == self.DISPLAY_LATEST:
-            posts = Post.latest_posts(self.owner)
-            posts = posts if posts.count() <= 7 else posts[:7]
-            context = {'posts': posts}
+            latest_posts = Post.sidebar_latest_posts(self.owner)
+            context = {'latest_posts': latest_posts}
             result = render_to_string('config/blocks/sidebar_posts.html', context)
+
         elif self.display_type == self.DISPLAY_HOTEST:
-            print(self.owner)
-            context = {'posts': Post.hot_posts(self.owner)}
+            hot_posts = Post.hot_posts(self.owner)
+            context = {'hot_posts': hot_posts}
             result = render_to_string('config/blocks/sidebar_posts.html', context)
+
         elif self.display_type == self.DISPLAY_COMMENT:
             comments = Comment.latest_comments(self.owner)
-            comments = comments if comments.count() <= 7 else comments[:7]
             context = {'comments': comments}
             result = render_to_string('config/blocks/sidebar_comments.html', context)
         return result
 
     @classmethod
-    def get_all_by_user(cls, user):
+    def get_all_by_blog_name(cls, blog_name):
+        """
+        根据用户获取侧边栏，匿名用户显示所有，登录用户显示登录用户的侧边栏
+        (还要根据博客设置里，是否显示某种侧边栏进行筛选)
+        """
+        user_settings = BlogSettings.get_dict_by_blog_name(blog_name)
+        show_html = user_settings['show_sidebar_html']  # 是否显示侧边栏html
+        show_comment = user_settings['show_sidebar_comment']  # 是否显示评论
+        show_latest_article = user_settings['show_sidebar_latest_article']  # 是否显示最新文章
+        show_hot_article = user_settings['show_sidebar_hot_article']  # 是否显示最热文章
 
-        return cls.objects.filter(status=cls.STATUS_SHOW, owner=user)
+        user_sidebar = cls.objects.filter(status=cls.STATUS_SHOW, blog__name=blog_name).order_by('-display_index')  # 登录用户的所有侧边栏
+        if not show_html:
+            # 排除自定义HTML的sidebar
+            user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_HTML)
+        if not show_comment:
+            # 排除comment的sidebar
+            user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_COMMENT)
+        if not show_hot_article:
+            # 排除hot_article的sidebar
+            user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_HOTEST)
+        if not show_latest_article:
+            # 排除latest_article的sidebar
+            user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_LATEST)
+        return user_sidebar
 
     class Meta:
         verbose_name = verbose_name_plural = '侧边栏'
 
 
 class TopBar(models.Model):
-    STATUS_SHOW = 1
-    STATUS_HIDE = 0
-    STATUS_ITEMS = (
-        (STATUS_SHOW, '显示'),
-        (STATUS_HIDE, '隐藏')
-    )
+    # STATUS_SHOW = 1
+    # STATUS_HIDE = 0
+    # STATUS_ITEMS = (
+    #     (STATUS_SHOW, '显示'),
+    #     (STATUS_HIDE, '隐藏')
+    # )
     DISPLAY_URL = 1  # 显示一个链接
     DISPLAY_ARCHIVE = 2  # 归档
-    DISPLAY_MY_BLOG = 3  # 我的博客
-    DISPLAY_ADMIN = 4  # 管理
-    DISPLAY_HOME = 5  # 首页链接
+    DISPLAY_ADMIN = 3  # 管理
+    DISPLAY_HOME = 4  # 首页链接
+    DISPLAY_MY_BLOG = 5  # 博客园首页
+    DISPLAY_LINKS = 6  # 友链
+    DISPLAY_ABOUT = 7  # 关于
 
     DISPLAY_TYPE = (
         (DISPLAY_URL, '超链接'),
-        (DISPLAY_MY_BLOG, '我的博客'),
         (DISPLAY_ARCHIVE, '归档'),
         (DISPLAY_ADMIN, '管理'),
+        (DISPLAY_HOME, '首页'),
+        (DISPLAY_MY_BLOG, '我的博客'),
+        (DISPLAY_LINKS, '友链'),
+        (DISPLAY_ABOUT, '关于'),
     )
 
+    name = models.CharField('名称', max_length=20, null=True, blank=True)
+    display_type = models.PositiveIntegerField('类型', choices=DISPLAY_TYPE, default=1)
+    show_type = models.BooleanField('是否显示', default=True)
+    display_index = models.PositiveIntegerField('数字越大越靠前', default=1)
+    content = models.CharField('内容,超链接必须有内容', max_length=512, null=True, blank=True)
+    link = models.CharField('链接', max_length=512, null=True, blank=True)
+
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = verbose_name_plural = '顶部导航按钮'
+
+    def __str__(self):
+        return self.title()
+
+    def title(self):
+        return self.name if self.name else self.display_type
+
+    @classmethod
+    def get_by_blog_name(cls, blog_name):
+        return cls.objects.filter(blog__name=blog_name).order_by('-display_index')
 
 
+class BlogSettings(models.Model):
+    """站点配置"""
+    site_name = models.CharField('网站名称', max_length=100, null=False,
+                                 blank=False, default='Django blog')
+    site_description = models.CharField('网站描述', max_length=1000, null=False,
+                                        blank=False, default='A new Django blog')
+    beian_code = models.CharField('备案号', max_length=100, null=True, blank=True)
+    blog = models.ForeignKey(Blog, verbose_name='作者', on_delete=models.CASCADE)
 
+    sidebar_latest_article_count = models.PositiveIntegerField('侧边栏最新文章数目', default=5)
+    sidebar_hot_article_count = models.PositiveIntegerField('侧边栏最热文章数目', default=5)
+    sidebar_comment_count = models.PositiveIntegerField('侧边栏评论数目', default=5)
+
+    show_sidebar_html = models.BooleanField('是否显示侧边栏html', default=True)
+    show_sidebar_comment = models.BooleanField('是否显示侧边栏评论', default=True)
+    show_sidebar_hot_article = models.BooleanField('是否显示侧边栏最热文章', default=True)
+    show_sidebar_latest_article = models.BooleanField('是否显示侧边栏最新文章', default=True)
+
+    class Meta:
+        verbose_name = verbose_name_plural = '站点配置'
+
+    def __str__(self):
+        return self.site_name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        from WYGBlog.utils import cache
+        cache.clear()
+
+    def get_dict(self):
+        dic = dict()
+        dic['site_name'] = self.site_name
+        dic['site_description'] = self.site_description
+        dic['show_sidebar_html'] = self.show_sidebar_html
+        dic['show_sidebar_comment'] = self.show_sidebar_comment
+        dic['show_sidebar_hot_article'] = self.show_sidebar_hot_article
+        dic['show_sidebar_latest_article'] = self.show_sidebar_latest_article
+        dic['sidebar_comment_count'] = self.sidebar_comment_count
+        dic['sidebar_hot_article_count'] = self.sidebar_hot_article_count
+        dic['sidebar_latest_article_count'] = self.sidebar_latest_article_count
+        return dic
+
+    @classmethod
+    def get_dict_by_blog_name(cls, blog_name):
+        user_settings = cls.objects.filter(blog__name=blog_name).first()
+        if user_settings:
+            return user_settings.get_dict()
+        else:
+            return BlogSettings().get_dict()
