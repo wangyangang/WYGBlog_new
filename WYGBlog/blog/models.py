@@ -22,7 +22,7 @@ class Category(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    name = models.CharField(max_length=50, verbose_name='名称')
+    name = models.CharField(max_length=50, verbose_name='名称', unique=True)
     status = models.PositiveIntegerField(choices=STATUS_ITEMS,
                                          default=STATUS_NORMAL,
                                          verbose_name='状态')
@@ -61,7 +61,7 @@ class Tag(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    name = models.CharField(max_length=10, verbose_name='名称')
+    name = models.CharField(max_length=10, verbose_name='名称', unique=True)
     status = models.PositiveIntegerField(choices=STATUS_ITEMS,
                                          default=STATUS_NORMAL,
                                          verbose_name='状态')
@@ -84,7 +84,7 @@ class Post(models.Model):
         (STATUS_DELETE, '删除'),
         (STATUS_DRAFT, '草稿')
     )
-    title = models.CharField(max_length=255, verbose_name='标题')
+    title = models.CharField(max_length=255, verbose_name='标题', unique=True)
     desc = models.CharField(max_length=1024, blank=True, verbose_name='摘要', null=True)
     # content = models.TextField(verbose_name='正文', help_text='正文必须是MARKDOWN格式')
     content = MDTextField('正文')
@@ -95,7 +95,7 @@ class Post(models.Model):
     category = models.ForeignKey(Category, verbose_name='分类', on_delete=models.DO_NOTHING)
     site_category = models.ForeignKey(Site_Category, verbose_name='网站分类',
                                       on_delete=models.DO_NOTHING, null=True, blank=True)
-    tag = models.ManyToManyField(Tag, verbose_name='标签')
+    tag = models.ManyToManyField(Tag, verbose_name='标签', null=True, blank=True)
     blog = models.ForeignKey(Blog, verbose_name='所属博客', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
@@ -115,7 +115,8 @@ class Post(models.Model):
         if blog_name:
             user_settings = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
             display_hot_count = user_settings['sidebar_hot_article_count']  # 侧边栏最热文章展示条数
-            posts = cls.objects.filter(status=cls.STATUS_NORMAL, blog__name=blog_name).order_by('-pv').only('id', 'title')
+            posts = cls.objects.filter(status=cls.STATUS_NORMAL, blog__name=blog_name).order_by('-pv').only('id',
+                                                                                                            'title')
         else:
             site_settings = SiteSettings.get_dict()
             display_hot_count = site_settings['sidebar_hot_article_count']
@@ -128,11 +129,12 @@ class Post(models.Model):
 
     @staticmethod
     def latest_posts(blog_name=None):
-        if blog_name:  # 该博客的最新文章
-            #user_settings = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
-            #display_latest_count = user_settings['sidebar_latest_article_count']  # 侧边栏最新文章展示条数
+        if blog_name:
+            # user_settings = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
+            # display_latest_count = user_settings['sidebar_latest_article_count']  # 侧边栏最新文章展示条数
+            # user_blog = Blog.objects.get(name=blog_name)
             posts = Post.objects.filter(status=Post.STATUS_NORMAL, blog__name=blog_name).order_by('-created_time')
-            #return posts[:display_latest_count]
+            # return posts[:display_latest_count]
             return posts
         else:  # 所有文章里的最新的
             posts = Post.objects.filter(status=Post.STATUS_NORMAL).order_by('-created_time')
@@ -146,7 +148,7 @@ class Post(models.Model):
         return posts[:display_count]
 
     def get_absolute_url(self):
-        return reverse('blog:post', args=(self.blog.user__username, self.id,))
+        return reverse('blog:post', args=(self.blog.user.username, self.id,))
 
     def save(self, *args, **kwargs):
         if self.is_md:

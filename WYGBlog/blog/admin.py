@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
 
+from home.models import Blog
 from .models import Category, Tag, Post
 from .adminforms import PostAdminForm
 from baseadmin import BaseOwnerAdmin
@@ -41,8 +42,10 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
     parameter_name = 'owner_category'
 
     def lookups(self, request, model_admin):
-        return Category.objects.filter(blog__name=request.user.username).values_list('id', 'name')
-        #return None
+        user_blog = Blog.objects.get(user=request.user)
+        if user_blog:
+            return Category.objects.filter(blog=user_blog).values_list('id', 'name')
+        return None
 
     def queryset(self, request, queryset):
         category_id = self.value()
@@ -55,7 +58,7 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
 @admin.register(Post)
 class PostAdmin(BaseOwnerAdmin):
     form = PostAdminForm
-    list_display = ('title', 'category', 'status',
+    list_display = ('title', 'category', 'site_category', 'status',
                     'created_time', 'blog', 'operator')
     list_display_links = []
     list_filter = [CategoryOwnerFilter]
@@ -80,7 +83,7 @@ class PostAdmin(BaseOwnerAdmin):
         ('基础配置', {
             'description': '基础配置描述',
             'fields': (
-                ('category', 'status'), 'tag', 'desc',
+                ('category', 'site_category', 'status'), 'tag', 'desc',
             ),
         }),
     )
@@ -97,13 +100,15 @@ class PostAdmin(BaseOwnerAdmin):
     # 编辑文章时，tag字段只能从当前用户的tag里进行选择
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'tag':
-            kwargs['queryset'] = Tag.objects.filter(blog__name=request.user.username)
+            user_blog = Blog.objects.get(user=request.user)
+            kwargs['queryset'] = Tag.objects.filter(blog=user_blog)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """编辑文章时，category字段只能从当前用户的category里进行选择"""
         if db_field.name == 'category':
-            kwargs['queryset'] = Category.objects.filter(blog__name=request.user.username)
+            user_blog = Blog.objects.get(user=request.user)
+            kwargs['queryset'] = Category.objects.filter(blog=user_blog)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -115,8 +120,8 @@ class LogEntryAdmin(admin.ModelAdmin):
 admin.site.site_header = 'WYGBlog后台管理系统'  # 后台管理主界面的h1标题
 admin.site.site_title = 'WYGBlog后台管理'  # 后台管理page的title，如 "选择分类来修改 | WYGBlog后台管理"
 # admin.site.index_title = 'abc'  # 后台管理主界面的副标题
-admin.site.unregister(User)
-admin.site.unregister(Group)
+# admin.site.unregister(User)
+# admin.site.unregister(Group)
 # admin_site.register(User)
 # admin_site.register(Group)
 # admin.site.site_url = reverse('blog:index', kwargs={'blog_name': 'wyg'})

@@ -50,7 +50,11 @@ class IndexView(CommonViewMixin, ListView):
 
     def get_queryset_data(self):
         """子类定制获取数据的方法"""
-        posts = models.Post.latest_posts(self.request.user)
+        blog_name = self.kwargs.get('blog_name', '')
+        if blog_name:
+            posts = models.Post.latest_posts(blog_name)
+        else:
+            posts = models.Post.latest_posts()
         return posts
 
     def get_queryset_from_cache(self, cache_key):
@@ -64,9 +68,9 @@ class IndexView(CommonViewMixin, ListView):
 
     def get_queryset(self, **kwargs):
         print(kwargs.get('blog_name', ''))
-        key = self.get_queryset_cache_key()
-        value = self.get_queryset_from_cache(key)
-        posts = models.Post.latest_posts(self.request.user)
+        # key = self.get_queryset_cache_key()
+        # value = self.get_queryset_from_cache(key)
+        posts = models.Post.latest_posts(self.kwargs.get('blog_name', None))
         return posts
 
 
@@ -101,6 +105,18 @@ class TagView(IndexView):
 
 class ArchiveView(IndexView):
     template_name = 'blog/archive.html'
+
+    def __init__(self):
+        super().__init__()
+        blog_settings = BlogSettings.objects.first()
+        if blog_settings:
+            ArchiveView.paginate_by = blog_settings.get_dict().get('archive_post_count')  # 归档页面每页展示条数
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     blog_name = self.kwargs.get('blog_name')
+    #     blog_settings = BlogSettings.get_dict_by_blog_name(blog_name)
+    #     archive_post_count = blog_settings
 
 
 class PostDetailView(CommonViewMixin, DetailView):
@@ -177,7 +193,7 @@ class AuthorView(IndexView):
     def get_queryset(self):
         queryset = super().get_queryset()
         owner_id = self.kwargs.get('owner_id')
-        return queryset.filter(owner_id=owner_id)
+        return queryset.filter()
 
 
 class AboutListView(IndexView):

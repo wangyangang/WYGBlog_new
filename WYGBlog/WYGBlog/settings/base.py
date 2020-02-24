@@ -34,17 +34,19 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    # 'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home',  #  主站
-    'homeconfig',  # 主站的配置，侧边栏，分类等
-    'blog',
-    'user',
-    'config',
-    'comment',
+    'django.contrib.sites',
+    'user.apps.UserConfig',  # 用户
+    'home.apps.HomeConfig',  #  主站
+    'homeconfig.apps.HomeconfigConfig',  # 主站的配置，侧边栏，分类等
+    'blog.apps.BlogConfig',
+    'config.apps.ConfigConfig',
+    'comment.apps.CommentConfig',
     'crispy_forms',
     'ckeditor',
     'ckeditor_uploader',
@@ -163,5 +165,7 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_URL = ('/admin/login/')
-# from django.contrib.auth.models import User
+
+AUTH_USER_MODEL = 'user.BlogUser'
+SITE_ID = 1
 

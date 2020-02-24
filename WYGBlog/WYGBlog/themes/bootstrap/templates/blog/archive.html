@@ -11,17 +11,14 @@
 {% endblock %}
 
 {% block content %}
-    {% for post in posts %}
-        <div class="card post">
-            <div class="card-body">
-                <div class="card-link">
-                    <a href="{% url 'blog:post' 'wyg' post.id %}" style="float:left;">{{ post.title }}</a>
-                    <span class="card-link" style="float:right;">{{ post.created_time }}</span>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-
+    <ul class="list-group">
+        {% for post in posts %}
+            <li class="list-group-item">
+                <span class="badge">{{ post.created_time }}</span>
+                <a href="{% url 'blog:post' blog_name post.id %}">{{ post.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
     <!--分页-->
     {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}">上一页</a>

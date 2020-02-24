@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q
 
+import mistune
+
 from blog.models import Post
 from config.models import BlogSettings
 
@@ -16,6 +18,7 @@ class Comment(models.Model):
     )
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     content = models.TextField(verbose_name='内容')
+    content_html = models.TextField(verbose_name='html形式的内容')
     nickname = models.CharField(max_length=50, verbose_name='昵称')
     website = models.URLField(verbose_name='网站')
     email = models.EmailField(verbose_name='邮箱')
@@ -30,6 +33,10 @@ class Comment(models.Model):
     def __str__(self):
         # return self.content if len(self.content) <= 10 else self.content[:10]
         return self.content[:10]
+
+    def save(self, *args, **kwargs):
+        self.content_html = mistune.markdown(self.content)
+        super().save(*args, **kwargs)
 
     @classmethod
     def get_by_blog_name(cls, blog_name):

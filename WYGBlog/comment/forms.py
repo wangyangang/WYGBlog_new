@@ -33,7 +33,7 @@ class CommentForm(forms.ModelForm):
         if len(content) < 10:
             raise forms.ValidationError('内容太短')
 
-        content = mistune.markdown(content)  # 把markdown格式，转为HTML，并保存起来
+        # content = mistune.markdown(content)  # 把markdown格式，转为HTML，并保存起来
         return content
 
     class Meta:

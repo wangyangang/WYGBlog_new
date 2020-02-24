@@ -12,10 +12,11 @@
 
 {% block extra_head %}
     <style>
-        .align-right{
+        .align-right {
             text-align: right;
         }
-        .no-padding-bottom{
+
+        .no-padding-bottom {
             padding-bottom: 10px;
             padding-top: 5px;
         }
@@ -23,33 +24,36 @@
 {% endblock %}
 
 {% block content %}
-        {% for post in posts %}
-            <div class="card post">
-                <div class="card-body no-padding-bottom">
-                    <h5 class="card-title">
-                        <a href="{% url 'blog:post' 'wyg' post.id %}">{{ post.title }}</a>
-                    </h5>
+    {% for post in posts %}
+        <h5 class="card-title">
+            <a href="{% url 'blog:post' blog_name post.id %}">{{ post.title }}</a>
+        </h5>
 
-                    <p class="card-text">{{ post.desc }}<a href="{% url 'blog:post' blog_name=blog_name post_id=post.id %}">......阅读全文</a></p>
+        <p class="card-text">{{ post.desc }}<a href="{% url 'blog:post' blog_name post.id %}">......阅读全文</a></p>
 
-                    <div class="tag-font align-right">
-                        <span class="card-link">作者: <a href="{% url 'user:index' post.blog.user_id %}">{{ post.blog.user.username }}</a></span>&nbsp;
-                        <span class="card-link">分类:<a href="{% url 'blog:category' blog_name post.category.id %}">{{ post.category.name }}</a></span>
-                        <span class="card-link">标签:
-                        {% for tag in post.tag.all %}
-                            <a href="{% url 'blog:tag' blog_name tag.id %}">{{ tag.name }}</a>
-                        {% endfor %}
+        <div class="tag-font align-right">
+            <span class="card-link">作者: <a
+                    href="{% url 'user:index' post.blog.user_id %}">{{ post.blog.user.username }}</a></span>&nbsp;
+            <span class="card-link">分类:<a
+                    href="{% url 'blog:category' blog_name post.category.id %}">{{ post.category.name }}</a></span>
+            <span class="card-link">标签:
+                {% for tag in post.tag.all %}
+                    <a href="{% url 'blog:tag' blog_name tag.id %}">{{ tag.name }}</a>
+                {% endfor %}
                         </span>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+        </div>
+        <hr>
+    {% endfor %}
 
     <!--分页-->
     {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}">上一页</a>
     {% endif %}
-    Page {{ page_obj.number }} of {{ paginator.num_pages }}
+
+    {% if paginator.count %}
+        Page {{ page_obj.number }} of {{ paginator.num_pages }}
+    {% endif %}
+
     {% if page_obj.has_next %}
         <a href="?page={{ page_obj.next_page_number }}">下一页</a>
     {% endif %}

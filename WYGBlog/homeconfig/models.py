@@ -11,7 +11,7 @@ class Category(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    name = models.CharField(max_length=50, verbose_name='名称')
+    name = models.CharField(max_length=50, verbose_name='名称', unique=True)
     status = models.PositiveIntegerField(choices=STATUS_ITEMS,
                                          default=STATUS_NORMAL,
                                          verbose_name='状态')
@@ -58,7 +58,7 @@ class SideBar(models.Model):
         (DISPLAY_HOT, '最热文章'),
     )
     display_index = models.PositiveIntegerField('展示顺序数字大的靠前', default=1, blank=True)
-    title = models.CharField('标题', max_length=50)
+    title = models.CharField('标题', max_length=50, unique=True)
     display_type = models.PositiveIntegerField(default=1,
                                                choices=SIDE_TYPE,
                                                verbose_name='展示类型')
@@ -138,7 +138,7 @@ class TopBar(models.Model):
     )
     # DISPLAY_TYPE2 = ('超链接', '我的博客', '管理', '首页')
 
-    name = models.CharField('名称', max_length=20)
+    name = models.CharField('名称', max_length=20, unique=True)
     display_type = models.PositiveIntegerField('类型', choices=DISPLAY_TYPE, default=1)
     show_type = models.BooleanField('是否显示', default=True)
     display_index = models.PositiveIntegerField('数字越大显示越靠前', default=1)

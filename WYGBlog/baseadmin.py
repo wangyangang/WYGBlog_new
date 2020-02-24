@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from home.models import Blog
 
 class BaseOwnerAdmin(admin.ModelAdmin):
     """
@@ -9,7 +10,10 @@ class BaseOwnerAdmin(admin.ModelAdmin):
     exclude = ('blog',)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(blog__name=request.user.username)
+        user_blog = Blog.objects.get(user=request.user)
+        if user_blog:
+            return super().get_queryset(request).filter(blog=user_blog)
+        return super().get_queryset(request)
 
     def save_model(self, request, obj, form, change):
         blog = request.user.blog

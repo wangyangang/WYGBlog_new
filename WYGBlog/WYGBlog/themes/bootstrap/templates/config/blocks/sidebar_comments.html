@@ -1,11 +1,10 @@
-<div class="font-size:10px;">
-<ul>
-    {% for comment in comments %}
-        <li>
-            <a href="{{ comment.website }}" target="_blank">{{ comment.nickname }}</a> 在
-            <a href="{% url 'blog:post' comment.post.blog.name comment.post_id  %}">{{ comment.post.title }}</a>中说:{{ comment.content|safe|slice:"15" }}
-        </li>
-        <hr>
-    {% endfor %}
-</ul>
-</div>
+{% for comment in comments %}
+    <li class="list-group-item">
+        <a href="{{ comment.website }}" target="_blank">{{ comment.nickname }}</a>
+        在
+        <a href="{% url 'blog:post' comment.post.blog.name comment.post_id  %}">{{ comment.post.title }}</a>
+        中说:
+        {{ comment.content|slice:"128" }}
+    </li>
+{% endfor %}
+

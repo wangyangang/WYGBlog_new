@@ -1,10 +1,313 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        ul {
+            padding: 0;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        a {
+            text-decoration: #34ce57;
+        }
+
+        .text_gray {
+            color: gray;
+        }
+
+        .data_left {
+            float: left;
+            border-right: 1px solid #bbb;
+            padding-right: 15px;
+            margin-right: 15px;
+        }
+
+        .data_right {
+            float: left;
+        }
+
+        .topic_nav_block_wrapper {
+            background-color: White;
+            border-bottom: 1px solid #C8D3DE;
+        }
+
+        .mini_nav_block {
+            font-size: 12px;
+            float: right;
+            margin-bottom: -1px;
+            padding-right: 10px;
+            width: 380px;
+        }
+
+        .mini_nav_block li {
+            float: right;
+            margin-right: 3px;
+        }
+
+        .mini_nav_block a:link, .mini_nav_block a:visited, .mini_nav_block a:active {
+            background-color: #59a0e1;
+            border: 1px solid #59a0e1;
+            color: #fff;
+            float: left;
+            letter-spacing: 1px;
+            padding: 2px 6px 1px;
+            text-decoration: none;
+        }
+
+        .title_block {
+            border: none;
+            width: 80px;
+            float: left;
+            font-size: 14px;
+            font-weight: bold;
+            padding-left: 10px;
+            color: #454545;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .link_modify_info {
+            background: url({% static 'images/ico_modify_info.gif' %}) no-repeat left center;
+            padding-left: 20px;
+        }
+
+        .link_account {
+            background: url({% static 'images/ico_account.gif' %}) no-repeat left center;
+            padding-left: 20px;
+        }
+
+        .link_mying {
+            background: url({% static 'images/ico_ing.gif' %}) no-repeat left center;
+            padding-left: 20px;
+        }
+
+        .link_question {
+            background: url({% static 'images/ico_question.gif' %}) no-repeat left center;
+            padding-left: 20px;
+        }
+    </style>
 </head>
 <body>
-    welcome - {{ user_name }}
+<div class="container head">
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="#">Home</a></li>
+        <li role="presentation"><a href="#">Profile</a></li>
+        <li role="presentation"><a href="#">Messages</a></li>
+    </ul>
+</div>
+<div class="container main">
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="list-group">
+                <li class="list-group-item">收藏</li>
+                <li class="list-group-item">博客</li>
+                <li class="list-group-item">个人信息</li>
+                <li class="list-group-item">Porta ac consectetur ac</li>
+                <li class="list-group-item">Vestibulum at eros</li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <div class="media" style="padding-top: 20px;">
+                <div class="media-left">
+                    <a href="#">
+                        <img class="media-object" src="{% static 'images/bigbai.png' %}" alt="...">
+                    </a>
+                    <table class="user_profile_nav_block">
+                        <tbody>
+                        <tr>
+                            <td>
+                                <ul class="avatar_nav_block" id="avatar_opt_nav">
+                                    <li><a href="#" class="link_modify_info">修改头像</a></li>
+                                    <li><a href="#" class="link_account">个人资料</a></li>
+                                    <li><a href="#" class="link_mying">闪存主页</a></li>
+                                    <li><a href="#" class="link_question">博问主页</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">王延刚</h4>
+                    <ul>
+                        <li><span>姓名:</span><span>王延刚</span></li>
+                        <li><span>性别:</span><span>男</span></li>
+                        <li><span>家乡:</span><span>山东枣庄</span></li>
+                        <li><span>现居住地:</span><span>北京昌平</span></li>
+                        <li><span>园龄:</span><span>3年2个月</span></li>
+                        <li><span>博客:</span><a href="#">https://example.com</a></li>
+                    </ul>
+                    <div class="text_gray" style="padding-top: 10px;">
+                        <div class="data_count_block" style="padding: 0px 0 15px;">
+                            <div class="data_left">
+                                <div class="follow_count"><a id="following_count"
+                                                             href="#">6</a>
+                                </div>
+                                <a href="#">关注</a>
+                            </div>
+                            <div class="data_right">
+                                <div class="follow_count"><a id="follower_count"
+                                                             href="#">0</a>
+                                </div>
+                                <a href="#">粉丝</a>
+                            </div>
+                            <div class="clear">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="topic_nav_block_wrapper">
+                <ul class="mini_nav_block">
+                    <li><a href="javascript:void(0)" data-apptype="question">博问</a></li>
+                    <li><a href="javascript:void(0)" data-apptype="blog">博客</a></li>
+                    <li><a href="javascript:void(0)" data-apptype="all" class="current_nav">全部</a></li>
+                </ul>
+                <span class="title_block">最新动态</span>
+                <div class="clear">
+                </div>
+            </div>
+
+            <div class="feed_block">
+                <div id="feed_list" style="display: block;">
+
+                    <ul>
+                        <li class="feed_item">
+                            <div class="feed_avatar">
+                                <a href="/u/wangyangang"><img
+                                        src="#"></a>
+                            </div>
+                            <div class="feed_body" id="feed_content_5e4f4c58596b82000859e20b">
+                                <div class="feed_title">
+                                    <a href="#" class="feed_author">王延刚</a>
+                                    发表博客： <a href="#" target="_blank"
+                                             class="feed_link">test</a>
+                                    <a class="recycle"
+                                       onclick="return deleteFeed('47f7e99c-a31a-e611-9fc1-ac853d9f53cc', '5e4f4c58596b82000859e20b')"
+                                       href="javascript: void(0);" title="删除这个动态">
+                                        <img alt="删除" src="#"></a>
+                                    <span class="feed_date">2020-02-21 11:19</span>
+                                </div>
+                                <div class="feed_desc">
+                                    博客园markdown编辑器测试
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </li>
+                        <li class="feed_item">
+                            <div class="feed_avatar">
+                                <a href="/u/wangyangang"><img
+                                        src="#"></a>
+                            </div>
+                            <div class="feed_body" id="feed_content_5dc532264e491b000849d541">
+                                <div class="feed_title">
+                                    <a href="/u/wangyangang/" class="feed_author">王延刚</a>
+                                    评论博客： <a href="https://www.cnblogs.com/Eeyhan/p/10416005.html#4419767"
+                                             target="_blank"
+                                             class="feed_link">前后端分离djangorestframework——序列化与反序列化数据</a>
+                                    <a class="recycle"
+                                       onclick="return deleteFeed('47f7e99c-a31a-e611-9fc1-ac853d9f53cc', '5dc532264e491b000849d541')"
+                                       href="javascript: void(0);" title="删除这个动态">
+                                        <img alt="删除" src="#"></a>
+                                    <span class="feed_date">2019-11-08 17:15</span>
+                                </div>
+                                <div class="feed_desc">
+                                    写的真详细，对新手太友好了，感谢！
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </li>
+                        <li class="feed_item">
+                            <div class="feed_avatar">
+                                <a href="/u/wangyangang"><img
+                                        src="#"></a>
+                            </div>
+                            <div class="feed_body" id="feed_content_5c153ee3c0b94e0007a3724d">
+                                <div class="feed_title">
+                                    <a href="/u/wangyangang/" class="feed_author">王延刚</a>
+                                    发表博客： <a href="https://www.cnblogs.com/wangyangang/p/6374918.html"
+                                             target="_blank"
+                                             class="feed_link">2016/04</a>
+                                    <a class="recycle"
+                                       onclick="return deleteFeed('47f7e99c-a31a-e611-9fc1-ac853d9f53cc', '5c153ee3c0b94e0007a3724d')"
+                                       href="javascript: void(0);" title="删除这个动态">
+                                        <img alt="删除" src="#"></a>
+                                    <span class="feed_date">2017-07-05 17:50</span>
+                                </div>
+                                <div class="feed_desc">
+                                    window属性： 1.srcElement，触发事件的来源 2016/4/10 20:42 Office Lens 2016/4/19 2016/4/20
+                                    1.下午：20110325，dom1扫尾
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </li>
+                        <li class="feed_item">
+                            <div class="feed_avatar">
+                                <a href="/u/wangyangang"><img
+                                        src="//pic.cnblogs.com/face/957178/20170324211629.png"></a>
+                            </div>
+                            <div class="feed_body" id="feed_content_5c14acd7dc18010007dec52c">
+                                <div class="feed_title">
+                                    <a href="/u/wangyangang/" class="feed_author">王延刚</a>
+                                    评论新闻： <a href="https://news.cnblogs.com/n/570828/#377381" target="_blank"
+                                             class="feed_link">不用出门，在Google地图上就能逛一圈博物馆</a>
+                                    <a class="recycle"
+                                       onclick="return deleteFeed('47f7e99c-a31a-e611-9fc1-ac853d9f53cc', '5c14acd7dc18010007dec52c')"
+                                       href="javascript: void(0);" title="删除这个动态">
+                                        <img alt="删除" src="#"></a>
+                                    <span class="feed_date">2017-06-05 08:17</span>
+                                </div>
+                                <div class="feed_desc">
+                                    google是什么？没听说过哎
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </li>
+                    </ul>
+
+                    <div class="block_arrow" id="feed_pager_block">
+
+                    </div>
+                </div>
+                <div id="feed_loading" class="feed_loading" style="display: none;">
+                    <img align="absmiddle"
+                         src="#"
+                         alt=""> 正在加载数据...
+                </div>
+                <div class="clear"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

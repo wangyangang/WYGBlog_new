@@ -16,7 +16,7 @@ class Link(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    title = models.CharField(max_length=50, verbose_name='标题')
+    title = models.CharField(max_length=50, verbose_name='标题', unique=True)
     href = models.URLField(verbose_name='链接')
     status = models.PositiveIntegerField(default=STATUS_NORMAL,
                                          choices=STATUS_ITEMS,
@@ -57,7 +57,7 @@ class SideBar(models.Model):
         (DISPLAY_COMMENT, '最近评论'),
     )
     display_index = models.PositiveIntegerField('展示顺序数字大的靠前', default=1, blank=True)
-    title = models.CharField('标题', max_length=50)
+    title = models.CharField('标题', max_length=50, unique=True)
     display_type = models.PositiveIntegerField(default=1,
                                                choices=SIDE_TYPE,
                                                verbose_name='展示类型')
@@ -158,7 +158,7 @@ class TopBar(models.Model):
         (DISPLAY_ABOUT, '关于'),
     )
 
-    name = models.CharField('名称', max_length=20, null=True, blank=True)
+    name = models.CharField('名称', max_length=20, unique=True)
     display_type = models.PositiveIntegerField('类型', choices=DISPLAY_TYPE, default=1)
     show_type = models.BooleanField('是否显示', default=True)
     display_index = models.PositiveIntegerField('数字越大越靠前', default=1)
@@ -171,10 +171,7 @@ class TopBar(models.Model):
         verbose_name = verbose_name_plural = '顶部导航按钮'
 
     def __str__(self):
-        return self.title()
-
-    def title(self):
-        return self.name if self.name else self.display_type
+        return self.name
 
     @classmethod
     def get_by_blog_name(cls, blog_name):
@@ -200,6 +197,7 @@ class BlogSettings(models.Model):
     show_sidebar_latest_article = models.BooleanField('是否显示侧边栏最新文章', default=True)
 
     index_post_count = models.PositiveIntegerField('首页文章展示数目', default=8)
+    archive_post_count = models.PositiveIntegerField('归档页面文章展示数目', default=10)
 
     class Meta:
         verbose_name = verbose_name_plural = '站点配置'
@@ -224,6 +222,7 @@ class BlogSettings(models.Model):
         dic['sidebar_hot_article_count'] = self.sidebar_hot_article_count
         dic['sidebar_latest_article_count'] = self.sidebar_latest_article_count
         dic['index_post_count'] = self.index_post_count
+        dic['archive_post_count'] = self.archive_post_count
         return dic
 
     @classmethod

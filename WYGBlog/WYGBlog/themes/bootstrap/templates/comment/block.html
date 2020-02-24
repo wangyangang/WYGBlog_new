@@ -4,6 +4,7 @@
             {% csrf_token%}
             <input type="hidden" name="post" value="{{ post.id }}">
             <input type="hidden" name="blog_name" value="{{ blog_name }}">
+            <span style="font-size: 20px;">发表评论</span> <br>
             {{ comment_form }}
             <input type="submit" value="提交评论" class="btn-block btn-primary btn-group-lg">
         </form>
@@ -17,7 +18,7 @@
                         <span>{{ comment.created_time }}</span>
                     </div>
                     <div class="comment-content">
-                        {{ comment.content|safe }}
+                        {{ comment.content_html|safe }}
                     </div>
                 </li>
             {% endfor %}
