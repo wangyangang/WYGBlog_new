@@ -26,7 +26,7 @@
     <div class="result">
         {% if succeed %}
             评论成功!
-            <a href="{{ target }}">返回</a>
+            <a href="{% url 'blog:post' post_id %}">返回</a>
         {% else %}
             <ul class="errorlist">
                 {% for field, message in form.errors.items %}

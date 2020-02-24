@@ -85,17 +85,19 @@ class SideBar(models.Model):
             return self.content
 
         elif self.display_type == self.DISPLAY_LATEST:
-            latest_posts = Post.sidebar_latest_posts(self.owner)
-            context = {'latest_posts': latest_posts}
+            latest_posts = Post.latest_posts(self.blog.name)
+            user_settings = BlogSettings.get_dict_by_blog_name(self.blog.name)  # 用户设置
+            display_latest_count = user_settings['sidebar_latest_article_count']  # 侧边栏最新文章展示条数
+            context = {'latest_posts': latest_posts, 'display_latest_count': display_latest_count}
             result = render_to_string('config/blocks/sidebar_posts.html', context)
 
         elif self.display_type == self.DISPLAY_HOTEST:
-            hot_posts = Post.hot_posts(self.owner)
+            hot_posts = Post.hot_posts(self.blog.name)
             context = {'hot_posts': hot_posts}
             result = render_to_string('config/blocks/sidebar_posts.html', context)
 
         elif self.display_type == self.DISPLAY_COMMENT:
-            comments = Comment.latest_comments(self.owner)
+            comments = Comment.latest_comments(self.blog.name)
             context = {'comments': comments}
             result = render_to_string('config/blocks/sidebar_comments.html', context)
         return result
@@ -197,6 +199,8 @@ class BlogSettings(models.Model):
     show_sidebar_hot_article = models.BooleanField('是否显示侧边栏最热文章', default=True)
     show_sidebar_latest_article = models.BooleanField('是否显示侧边栏最新文章', default=True)
 
+    index_post_count = models.PositiveIntegerField('首页文章展示数目', default=8)
+
     class Meta:
         verbose_name = verbose_name_plural = '站点配置'
 
@@ -219,6 +223,7 @@ class BlogSettings(models.Model):
         dic['sidebar_comment_count'] = self.sidebar_comment_count
         dic['sidebar_hot_article_count'] = self.sidebar_hot_article_count
         dic['sidebar_latest_article_count'] = self.sidebar_latest_article_count
+        dic['index_post_count'] = self.index_post_count
         return dic
 
     @classmethod

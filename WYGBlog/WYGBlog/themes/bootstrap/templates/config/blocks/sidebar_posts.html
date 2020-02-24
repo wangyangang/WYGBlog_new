@@ -1,13 +1,13 @@
 <ul>
     {% if latest_posts %}
-        {% for post in latest_posts %}
-            <li><a href="{% url 'blog:post' post.blog.user__username, post.id %}">{{ post.title }}</a></li>
+        {% for post in latest_posts|slice:display_latest_count %}
+            <li><a href="{% url 'blog:post' post.blog.user.username post.id %}">{{ post.title }}</a></li>
         {% endfor %}
     {% endif %}
 
     {% if hot_posts %}
         {% for post in hot_posts %}
-            <li><a href="{% url 'blog:post' post.blog.user__username, post.id %}">{{ post.title }}</a></li>
+            <li><a href="{% url 'blog:post' post.blog.user.username post.id %}">{{ post.title }}</a> &nbsp;{{ post.pv }}</li>
         {% endfor %}
     {% endif %}
 </ul>

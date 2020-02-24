@@ -95,7 +95,7 @@ class Post(models.Model):
     category = models.ForeignKey(Category, verbose_name='分类', on_delete=models.DO_NOTHING)
     site_category = models.ForeignKey(Site_Category, verbose_name='网站分类',
                                       on_delete=models.DO_NOTHING, null=True, blank=True)
-    tag = models.ManyToManyField(Tag, verbose_name='标签', null=True, blank=True)
+    tag = models.ManyToManyField(Tag, verbose_name='标签')
     blog = models.ForeignKey(Blog, verbose_name='所属博客', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
@@ -111,7 +111,7 @@ class Post(models.Model):
         return self.title
 
     @classmethod
-    def hot_posts(cls, blog_name):
+    def hot_posts(cls, blog_name=None):
         if blog_name:
             user_settings = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
             display_hot_count = user_settings['sidebar_hot_article_count']  # 侧边栏最热文章展示条数
@@ -129,11 +129,14 @@ class Post(models.Model):
     @staticmethod
     def latest_posts(blog_name=None):
         if blog_name:  # 该博客的最新文章
+            #user_settings = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
+            #display_latest_count = user_settings['sidebar_latest_article_count']  # 侧边栏最新文章展示条数
             posts = Post.objects.filter(status=Post.STATUS_NORMAL, blog__name=blog_name).order_by('-created_time')
+            #return posts[:display_latest_count]
+            return posts
         else:  # 所有文章里的最新的
             posts = Post.objects.filter(status=Post.STATUS_NORMAL).order_by('-created_time')
-
-        return posts
+            return posts
 
     @classmethod
     def sidebar_latest_posts(cls, user):

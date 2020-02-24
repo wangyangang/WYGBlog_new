@@ -29,7 +29,7 @@ class TopBarAdmin(admin.ModelAdmin):
 
 
 class SideBarAdmin(admin.ModelAdmin):
-    pass
+    fields = ('title', 'display_type', 'content', 'display_index', 'status')
 
 
 class BlogSettingsAdmin(admin.ModelAdmin):

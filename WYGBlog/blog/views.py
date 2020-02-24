@@ -21,7 +21,7 @@ from config.models import BlogSettings
 class CommonViewMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        blog_name = self.kwargs.get('blog_name')
+        blog_name = self.kwargs.get('blog_name')  # 博客名
 
         context.update({'sidebars': SideBar.get_all_by_blog_name(blog_name)})  # 侧边栏
         context.update(models.Category.get_by_blog_name(blog_name))  # 分类导航
@@ -33,9 +33,15 @@ class CommonViewMixin:
 
 
 class IndexView(CommonViewMixin, ListView):
-    paginate_by = 8
+    paginate_by = 8  # 在init方法里，读取网站配置里的首页文章展示条数
     context_object_name = 'posts'
     template_name = 'blog/index.html'
+
+    def __init__(self):
+        super().__init__()
+        blog_settings = BlogSettings.objects.first()
+        if blog_settings:
+            IndexView.paginate_by = blog_settings.get_dict().get('index_post_count')
 
     def get_queryset_cache_key(self):
         """子类定制缓存key"""
@@ -103,13 +109,19 @@ class PostDetailView(CommonViewMixin, DetailView):
     context_object_name = 'post'
     pk_url_kwarg = 'post_id'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({'blog_name': self.kwargs.get('blog_name')})
+        return context
+
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
         self.handle_visited()
         return response
 
     def get_queryset(self):
-        posts = models.Post.latest_posts(self.request.user)
+        blog_name = self.kwargs.get('blog_name')
+        posts = models.Post.latest_posts(blog_name)
         return posts
 
     def handle_visited(self):

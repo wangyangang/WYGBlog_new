@@ -31,8 +31,7 @@ urlpatterns = [
     # 这样定义了之后就有了两个只读的接口，
     # /api/post/
     # /api/post/<post_id>/
-    re_path(r'^api/', include((router.urls, 'router'), namespace='api')),
-    # re_path(r'^api/', include(router.urls)),
+    # re_path(r'^api/', include((router.urls, 'router'), namespace='api')),
     # 配置接口文档  !!!!!!!!!!!!!有问题，访问/blog/api/docs/ 报错！
-    re_path(r'^api/docs/', include_docs_urls(title='WYGBlog apis')),
+    # re_path(r'^api/docs/', include_docs_urls(title='WYGBlog apis')),
 ]

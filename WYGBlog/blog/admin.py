@@ -119,4 +119,5 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 # admin_site.register(User)
 # admin_site.register(Group)
-#
+# admin.site.site_url = reverse('blog:index', kwargs={'blog_name': 'wyg'})
+# site_url = '/wyg/'

@@ -10,11 +10,32 @@
     <link rel="stylesheet" href="{% static 'bootstrap-4.0.0-dist/css/bootstrap.css' %}">
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
     <style>
-        .post{
-            margin-bottom: 5px;     //配置每个post卡片下面的间隔
+        body{
+            font-family: Lato,"PingFang SC","Microsoft YaHei",sans-serif!important;
+            color: #314659!important;
         }
-        .tag-font{
-            font-family: Damascus;font-size: 14px;color: gray;
+
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        li{
+            list-style: none;
+            padding: 0;
+        }
+        a {
+            transition: all .3s ease!important;
+            color: #314659;
+        }
+        .fixed-header{
+            position: sticky;
+            position: -webkit-sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .main2{
+            padding: 15px 10px 0 10px;
         }
     </style>
     {% block extra_head %}
@@ -22,17 +43,17 @@
     {% endblock %}
 </head>
 <body>
-    <div class="container head">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            {% for top_bar in top_bars %}
-                {% if top_bar.display_type == 1 %}
-                    <a href="{{ top_bar.link }}" class="navbar-brand" target="_blank">{{ top_bar.name }}</a>
-                {% else %}
-                    <a href="{{ top_bar.link }}" class="navbar-brand">{{ top_bar.name }}</a>
-                {% endif %}
-            {% endfor %}
-
+    <div class="container head fixed-header">
+        <nav class="navbar navbar-expand-lg navbar-default bg-light">
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                {% for top_bar in top_bars %}
+                    {% if top_bar.display_type == 1 %}
+                        <a href="{{ top_bar.link }}" class="navbar-brand" target="_blank">{{ top_bar.name }}</a>
+                    {% else %}
+                        <a href="{{ top_bar.link }}" class="navbar-brand">{{ top_bar.name }}</a>
+                    {% endif %}
+                {% endfor %}
+                |
                 <ul class="navbar-nav mr-auto">
                     {% for nav_category in nav_categories %}
                         <li class="nav-item">
@@ -41,6 +62,7 @@
                     {% endfor %}
                 </ul>
 
+
                 <form action="{% url 'blog:search' blog_name %}" class="form-inline my-2 my-lg-0" method="get">
                     <input type="search" class="form-control mr-sm-2"
                            placeholder="Search" aria-label="Search" name="keyword" value="{{ keyword }}">
@@ -48,20 +70,10 @@
                 </form>
             </div>
         </nav>
-
-        <div class="jumbotron">
-            <h1 class="display-4">{{ site_name }}</h1>
-            <p class="lead">{{ site_description }}</p>
-        </div>
     </div>
 
-    <div class="container main">
+    <div class="container main main2">
         <div class="row">
-            <div class="col-9 post-list">
-                {% block content %}
-
-                {% endblock %}
-            </div>
             <div class="col-3">
                 {% block sidebar %}
                     {% for sidebar in sidebars %}
@@ -78,6 +90,12 @@
                             </div>
                         </div>
                     {% endfor %}
+                {% endblock %}
+            </div>
+
+            <div class="col-9 post-list">
+                {% block content %}
+
                 {% endblock %}
             </div>
         </div>

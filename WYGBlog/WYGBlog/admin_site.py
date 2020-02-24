@@ -5,6 +5,7 @@
 @time:   2/21/20 - 10:57 PM
 """
 from django.contrib.admin import AdminSite
+from django.shortcuts import reverse
 
 from home.models import Blog
 from home.admin import BlogAdmin
@@ -24,8 +25,9 @@ class WYGBlogAdminSite(AdminSite):
 
 
 admin_site = WYGBlogAdminSite(name='admin-site')
-admin_site.register(Blog, BlogAdmin)
+# admin_site.register(Blog, BlogAdmin)
 admin_site.register(Category, CategoryAdmin)
 admin_site.register(TopBar, TopBarAdmin)
 admin_site.register(SideBar, SideBarAdmin)
 admin_site.register(BlogSettings, BlogSettingsAdmin)
+# admin_site.site_url = reverse('blog:index', kwargs={'blog_name': 'wyg'})

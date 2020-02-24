@@ -41,7 +41,8 @@ urlpatterns = [
     path('mdeditor/', include('mdeditor.urls')),
 
     path('', include(('home.urls', 'home'), namespace='home')),  # 博客园首页
-    path('config/', include(('homeconfig.urls', 'config'), namespace='config')),
+    path('config', include(('config.urls', 'config'), namespace='config')),
+    path('homeconfig/', include(('homeconfig.urls', 'homeconfig'), namespace='homeconfig')),
     # re_path(r'^(?P<blog_name>\w+)/$', IndexView.as_view(), name='blog'),  # 个人博客页
     re_path(r'^(?P<blog_name>\w+)/', include(('blog.urls', 'blog'), namespace='blog')),  # 个人博客页
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

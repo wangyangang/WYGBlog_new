@@ -163,3 +163,5 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_URL = ('/admin/login/')
+# from django.contrib.auth.models import User
+

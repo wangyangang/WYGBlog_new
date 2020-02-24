@@ -2,7 +2,8 @@
     <div class="comment">
         <form action="{% url 'comment:add_comment' %}" method="post" class="form-group">
             {% csrf_token%}
-            <input type="hidden" name="target" value="{{ target }}">
+            <input type="hidden" name="post" value="{{ post.id }}">
+            <input type="hidden" name="blog_name" value="{{ blog_name }}">
             {{ comment_form }}
             <input type="submit" value="提交评论" class="btn-block btn-primary btn-group-lg">
         </form>

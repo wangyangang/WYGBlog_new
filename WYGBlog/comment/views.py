@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.views.generic import TemplateView
 
 from .forms import CommentForm
@@ -10,21 +10,22 @@ class AddCommentView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         comment_form = CommentForm(request.POST)
-        target = request.POST.get('target')
+        post_id = request.POST.get('post')
+        blog_name = request.POST.get('blog_name')
 
         if comment_form.is_valid():
             instance = comment_form.save(commit=False)
-            instance.target = target
+            instance.post_id = post_id
             instance.save()
             succeed = True
-            return redirect(target)
+            return redirect(reverse('blog:post', args=(blog_name, post_id)))
         else:
             succeed = False
 
         context = {
             'succeed': succeed,
             'form': comment_form,
-            'target': target
+            'post': post_id
         }
         return self.render_to_response(context)
 

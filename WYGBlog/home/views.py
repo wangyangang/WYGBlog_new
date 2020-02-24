@@ -24,8 +24,15 @@ class CommonViewMixin:
 
 
 class HomeListView(CommonViewMixin, ListView):
+    paginate_by = 5
     template_name = 'home/index.html'
     context_object_name = 'posts'
+
+    def __init__(self):
+        super().__init__()
+        blog_settings = BlogSettings.objects.first()
+        if blog_settings:
+            HomeListView.paginate_by = blog_settings.get_dict().get('index_post_count')
 
     def get_queryset(self):
         posts = Post.latest_posts()

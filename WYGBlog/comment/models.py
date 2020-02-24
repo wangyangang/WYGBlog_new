@@ -14,7 +14,7 @@ class Comment(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    target = models.CharField(max_length=100, verbose_name='评论目标')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     content = models.TextField(verbose_name='内容')
     nickname = models.CharField(max_length=50, verbose_name='昵称')
     website = models.URLField(verbose_name='网站')
@@ -32,21 +32,23 @@ class Comment(models.Model):
         return self.content[:10]
 
     @classmethod
-    def get_by_target(cls, target):
-        return cls.objects.filter(target=target, status=cls.STATUS_NORMAL)
+    def get_by_blog_name(cls, blog_name):
+        return cls.objects.filter(post__blog__name=blog_name, status=cls.STATUS_NORMAL)
 
     @classmethod
-    def latest_comments(cls, owner):
-        current_user_posts = owner.post_set.all()  # 当前用户的所有文章
-        posts_urls = []
+    def get_by_post(cls, post):
+        return cls.objects.first(status=cls.STATUS_NORMAL, post=post)
 
-        for post in current_user_posts:
-            posts_urls.append(reverse('blog:post', args=[post.blog.user__username, post.id]))
-        ret = cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-created_time')
-        user_settings = BlogSettings.get_dict_by_user(owner)  # 用户设置
-        display_count = user_settings['sidebar_comment_count']  # 侧边栏评论展示的条数
-        ret = ret.filter(Q(target__in=posts_urls) | Q(target__icontains='links'))
-        return ret[:display_count]
+    @classmethod
+    def latest_comments(cls, blog_name):
+        if not blog_name:
+            return None
+        else:
+            ret = cls.objects.filter(post__blog__name=blog_name, status=cls.STATUS_NORMAL).order_by('-created_time')
+
+            user_settings = BlogSettings.get_dict_by_blog_name(blog_name)  # 用户设置
+            display_count = user_settings['sidebar_comment_count']  # 侧边栏评论展示的条数
+            return ret[:display_count]
         # return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-created_time')
 
 

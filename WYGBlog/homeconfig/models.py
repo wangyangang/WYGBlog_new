@@ -106,10 +106,10 @@ class SideBar(models.Model):
             order_by('-display_index')  # 登录用户的所有侧边栏
         if not show_html:
             # 排除自定义HTML的sidebar
-            user_sidebar = sidebars.exclude(display_type=SideBar.DISPLAY_HTML)
+            sidebars = sidebars.exclude(display_type=SideBar.DISPLAY_HTML)
         if not show_hot_article:
             # 排除hot_article的sidebar
-            user_sidebar = sidebars.exclude(display_type=SideBar.DISPLAY_HOT)
+            sidebars = sidebars.exclude(display_type=SideBar.DISPLAY_HOT)
         return sidebars
 
     class Meta:
@@ -182,6 +182,7 @@ class BlogSettings(models.Model):
     # show_sidebar_comment = models.BooleanField('是否显示侧边栏评论', default=True)
     show_sidebar_hot_article = models.BooleanField('是否显示侧边栏最热文章', default=True)
     # show_sidebar_latest_article = models.BooleanField('是否显示侧边栏最新文章', default=True)
+    index_post_count = models.PositiveIntegerField('首页展示文章条数', default=6)
 
     class Meta:
         verbose_name = verbose_name_plural = '站点配置'
@@ -202,6 +203,7 @@ class BlogSettings(models.Model):
         dic['show_sidebar_hot_article'] = self.show_sidebar_hot_article
         dic['show_sidebar_latest_article'] = self.latest_article_count
         dic['sidebar_hot_article_count'] = self.sidebar_hot_article_count
+        dic['index_post_count'] = self.index_post_count
         return dic
 
     @classmethod
