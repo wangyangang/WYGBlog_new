@@ -33,14 +33,14 @@
 
         <div class="tag-font align-right">
             <span class="card-link">作者: <a
-                    href="{% url 'user:index' post.blog.user_id %}">{{ post.blog.user.username }}</a></span>&nbsp;
+                    href="{% url 'user:index' %}">{{ post.blog.user.username }}</a></span>&nbsp;
             <span class="card-link">分类:<a
                     href="{% url 'blog:category' blog_name post.category.id %}">{{ post.category.name }}</a></span>
             <span class="card-link">标签:
                 {% for tag in post.tag.all %}
                     <a href="{% url 'blog:tag' blog_name tag.id %}">{{ tag.name }}</a>
                 {% endfor %}
-                        </span>
+            </span>
         </div>
         <hr>
     {% endfor %}

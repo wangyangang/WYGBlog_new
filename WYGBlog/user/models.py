@@ -10,7 +10,7 @@ class BlogUser(AbstractUser):
     modified_time = models.DateTimeField('修改时间', auto_now_add=True)
 
     def get_absolute_url(self):
-        return reverse('user:index', kwargs={'username': self.username})
+        return reverse('user:index')
 
     def __str__(self):
         return self.username

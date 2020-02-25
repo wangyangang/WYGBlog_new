@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        .register {
+            width: 500px;
+            height: 500px;
+            border: 1px solid #EEEEEE;
+            margin: 20px auto;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="register">
+        <h3>注册</h3>
+        <form class="form-horizontal" action="{% url 'user:register' %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                {{ field.label_tag }}
+                {{ field }}
+                <span style="color: red;">{{ field.errors }}</span>
+                {% if field.help_text %}
+                    <p class="help text-small text-muted">{{ field.help_text|safe }}</p>
+                {% endif %}
+            {% endfor %}
+            <button type="submit" class="btn btn-primary btn-block">注册</button>
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+        <div class="flex-center top-gap text-small">
+            <a href="{% url 'login' %}?next={{ request.path }}">已有账号登录</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

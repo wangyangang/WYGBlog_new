@@ -5,6 +5,7 @@ from django.utils.functional import cached_property
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AnonymousUser, User
 
+import markdown
 import mistune
 
 from config.models import BlogSettings
@@ -101,7 +102,6 @@ class Post(models.Model):
 
     pv = models.PositiveIntegerField(default=1)
     uv = models.PositiveIntegerField(default=1)
-    is_md = models.BooleanField(default=False, verbose_name='markdown语法')
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'
@@ -148,11 +148,13 @@ class Post(models.Model):
         return posts[:display_count]
 
     def get_absolute_url(self):
-        return reverse('blog:post', args=(self.blog.user.username, self.id,))
+        return reverse('blog:post', args=(self.blog.name, self.id,))
 
     def save(self, *args, **kwargs):
-        if self.is_md:
-            self.content_html = mistune.markdown(self.content)
-        else:
-            self.content_html = self.content
+        self.content_html = markdown.markdown(self.content,
+                                              extensions=[
+                                                  'markdown.extensions.extra',
+                                                  'markdown.extensions.codehilite',
+                                                  'markdown.extensions.toc'
+                                              ])
         super().save(*args, **kwargs)

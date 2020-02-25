@@ -68,6 +68,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'WYGBlog.urls'
 THEME = 'bootstrap'  # 主题
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -85,7 +86,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'WYGBlog.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -115,7 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -164,8 +163,21 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-LOGIN_URL = ('/admin/login/')
+LOGIN_URL = ('/user/login/')
+
+# 而是通过在地址栏输入url来访问的，那么我们得不到用户上一个页面的路径，即无法知道登录和
+# 注销页面url的next参数值，因此无法跳转。这时通过配置REDIRECT_URL，使其跳转回首页即可。
+# 如果用户不是通过点击登录、注销按钮来访问登录和注销页面
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'user.BlogUser'
 SITE_ID = 1
 
+# 测试环境下，把邮件直接发送到终端
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'user.backends.EmailBackend',
+)

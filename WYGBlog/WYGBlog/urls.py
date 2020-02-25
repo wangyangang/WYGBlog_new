@@ -26,6 +26,7 @@ from django.conf import settings
 
 from home.views import HomeListView
 from WYGBlog.admin_site import admin_site
+from user.views import IndexView2
 
 
 urlpatterns = [
@@ -34,6 +35,9 @@ urlpatterns = [
 
     # path('blog/', include(('blog.urls', 'blog'), namespace='blog')),
     path('user/', include(('user.urls', 'user'), namespace='user')),
+    # path('user/', include('user.urls')),
+    path('user/', include('django.contrib.auth.urls')),
+    path('accounts/profile/', IndexView2.as_view(), name='user-index'),
     path('comment/', include(('comment.urls', 'comment'), namespace='comment')),
     path('rss|feed/', LatestPostFeed(), name='rss'),
     path('sitemap\.xml/', sitemap_views.sitemap, {'sitemaps': {'posts': PostSitemap}}),

@@ -150,13 +150,11 @@
                     <h4 class="media-heading">王延刚</h4>
                     {% if user.is_authenticated %}
                         欢迎您-{{ user.username }}
-                        <a href="{% url 'logout' %}?next={{ request.path }}">注销</a>
-                        <a href="{% url 'password_change' %}?next={{ request.path }}">修改密码</a>
                     {% else %}
-                        未登录-
-                        <a href="{% url 'login' %}?next={{ request.path }}">立即登录</a>
-                        <button><a href="{% url 'user:register' %}?next={{ request.path }}">注册</a></button>
+                        未登录- <a href="{% url 'login' %}?next={{ request.path }}">立即登录</a>
+                        <button><a href="{% url 'user:register' %}">注册</a></button>
                     {% endif %}
+                    <a href="{% url 'logout' %}?next={{ request.path }}">注销</a>
                     <ul>
                         <li><span>姓名:</span><span>王延刚</span></li>
                         <li><span>性别:</span><span>男</span></li>

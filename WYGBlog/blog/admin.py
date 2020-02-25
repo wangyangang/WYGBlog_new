@@ -74,9 +74,6 @@ class PostAdmin(BaseOwnerAdmin):
         ('内容', {
             'fields': (
                 'title',
-                'is_md',
-                'content_ck',
-                'content_md',
                 'content',
             ),
         }),

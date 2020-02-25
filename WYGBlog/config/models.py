@@ -50,11 +50,13 @@ class SideBar(models.Model):
     DISPLAY_LATEST = 2
     DISPLAY_HOTEST = 3
     DISPLAY_COMMENT = 4
+    DISPLAY_TOC = 5
     SIDE_TYPE = (
         (DISPLAY_HTML, 'HTML'),
         (DISPLAY_LATEST, '最新文章'),
         (DISPLAY_HOTEST, '最热文章'),
         (DISPLAY_COMMENT, '最近评论'),
+        (DISPLAY_TOC, '文章目录'),
     )
     display_index = models.PositiveIntegerField('展示顺序数字大的靠前', default=1, blank=True)
     title = models.CharField('标题', max_length=50, unique=True)
@@ -100,6 +102,8 @@ class SideBar(models.Model):
             comments = Comment.latest_comments(self.blog.name)
             context = {'comments': comments}
             result = render_to_string('config/blocks/sidebar_comments.html', context)
+        elif self.display_type == self.DISPLAY_TOC:
+            result = render_to_string('config/blocks/sidebar_toc.html')
         return result
 
     @classmethod
@@ -113,6 +117,7 @@ class SideBar(models.Model):
         show_comment = user_settings['show_sidebar_comment']  # 是否显示评论
         show_latest_article = user_settings['show_sidebar_latest_article']  # 是否显示最新文章
         show_hot_article = user_settings['show_sidebar_hot_article']  # 是否显示最热文章
+        show_toc = user_settings['show_sidebar_toc']  # 是否显示文章目录
 
         user_sidebar = cls.objects.filter(status=cls.STATUS_SHOW, blog__name=blog_name).order_by('-display_index')  # 登录用户的所有侧边栏
         if not show_html:
@@ -127,6 +132,8 @@ class SideBar(models.Model):
         if not show_latest_article:
             # 排除latest_article的sidebar
             user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_LATEST)
+        if not show_toc:
+            user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_TOC)
         return user_sidebar
 
     class Meta:
@@ -195,6 +202,7 @@ class BlogSettings(models.Model):
     show_sidebar_comment = models.BooleanField('是否显示侧边栏评论', default=True)
     show_sidebar_hot_article = models.BooleanField('是否显示侧边栏最热文章', default=True)
     show_sidebar_latest_article = models.BooleanField('是否显示侧边栏最新文章', default=True)
+    show_sidebar_toc = models.BooleanField('是否显示文章侧边TOC', default=True)
 
     index_post_count = models.PositiveIntegerField('首页文章展示数目', default=8)
     archive_post_count = models.PositiveIntegerField('归档页面文章展示数目', default=10)
@@ -218,6 +226,7 @@ class BlogSettings(models.Model):
         dic['show_sidebar_comment'] = self.show_sidebar_comment
         dic['show_sidebar_hot_article'] = self.show_sidebar_hot_article
         dic['show_sidebar_latest_article'] = self.show_sidebar_latest_article
+        dic['show_sidebar_toc'] = self.show_sidebar_toc
         dic['sidebar_comment_count'] = self.sidebar_comment_count
         dic['sidebar_hot_article_count'] = self.sidebar_hot_article_count
         dic['sidebar_latest_article_count'] = self.sidebar_latest_article_count

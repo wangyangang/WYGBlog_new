@@ -11,6 +11,8 @@ from django.db.models import Q, F
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 
+import markdown
+
 from . import models
 from config.models import SideBar, Link, TopBar
 from comment.models import Comment
@@ -128,6 +130,14 @@ class PostDetailView(CommonViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({'blog_name': self.kwargs.get('blog_name')})
+        md = markdown.Markdown(extensions=[
+            'markdown.extensions.toc',
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite'
+        ])
+        post = context.get('post')
+        post.content_html = md.convert(post.content)
+        post.toc = md.toc
         return context
 
     def get(self, request, *args, **kwargs):
@@ -135,9 +145,10 @@ class PostDetailView(CommonViewMixin, DetailView):
         self.handle_visited()
         return response
 
-    def get_queryset(self):
+    def get_queryset(self, *args, **kwargs):
         blog_name = self.kwargs.get('blog_name')
         posts = models.Post.latest_posts(blog_name)
+
         return posts
 
     def handle_visited(self):
@@ -148,11 +159,11 @@ class PostDetailView(CommonViewMixin, DetailView):
         uv_key = 'uv:%s:%s:%s' % (uid, str(date.today()), self.request.path)
         if not cache.get(pv_key):
             increase_pv = True
-            cache.set(pv_key, 1, 1*60)
+            cache.set(pv_key, 1, 1 * 60)
 
         if not cache.get(uv_key):
             increase_uv = True
-            cache.set(pv_key, 1, 24*60*60)
+            cache.set(pv_key, 1, 24 * 60 * 60)
 
         if increase_pv and increase_uv:
             models.Post.objects.filter(pk=self.object.id).update(pv=F('pv') + 1, uv=F('uv') + 1)

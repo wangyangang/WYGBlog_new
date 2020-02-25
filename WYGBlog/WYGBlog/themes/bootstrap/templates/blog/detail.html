@@ -7,76 +7,77 @@
 {% endblock %}
 
 {% block extra_head %}
-{#    <link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/googlecode.min.css">#}
     <link rel="stylesheet" href="{% static 'css/highlight_googlecode.css' %}">
-{#    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>#}
     <script src="{% static 'js/highlight.js' %}"></script>
     <script>hljs.initHighlightingOnLoad();</script>
     <style>
-    .esa-post-signature{
-        padding: 12px 24px 12px 30px;
-        margin-top: 15px;
-        margin-left: 5px;
-        border-left-width: 4px;
-        font-size: 15px;
-        line-height: 2;
-        border-left-style: solid;
-        background-color: #f8f8f8;
-        position: relative;
-        border-bottom-right-radius: 2px;
-        border-top-right-radius: 2px;
-        border-left-color: #2D8CF0;
-        z-index: 1;
-    }
-    .esa-post-signature:before{
-        content: "!";
-        background-color: #2D8CF0;
-        position: absolute;
-        top: 25px;
-        left: -12px;
-        color: #fff;
-        width: 20px;
-        height: 20px;
-        border-radius: 100%;
-        text-align: center;
-        line-height: 20px;
-        font-weight: 700;
-        font-size: 14px;
-    }
-    .esa-post-signature p {
-        margin: 0!important;
-    }
-    #blog_post_info_block {
-        margin-top: 20px;
-    }
-    #BlogPostCategory{
-        font-size: 14px;
-        margin-bottom: 0;
-    }
-    .postDesc{
-        float: right;
-        width: 100%;
-        text-align: right;
-        margin-top: 20px;
-        font-size: 13px;
-        font-weight: 300;
-        padding-right: 0!important;
-        color: #314659!important;
-        clear: both;
-    }
+        .esa-post-signature {
+            padding: 12px 24px 12px 30px;
+            margin-top: 15px;
+            margin-left: 5px;
+            border-left-width: 4px;
+            font-size: 15px;
+            line-height: 2;
+            border-left-style: solid;
+            background-color: #f8f8f8;
+            position: relative;
+            border-bottom-right-radius: 2px;
+            border-top-right-radius: 2px;
+            border-left-color: #2D8CF0;
+            z-index: 1;
+        }
+
+        .esa-post-signature:before {
+            content: "!";
+            background-color: #2D8CF0;
+            position: absolute;
+            top: 25px;
+            left: -12px;
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 100%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .esa-post-signature p {
+            margin: 0 !important;
+        }
+
+        #blog_post_info_block {
+            margin-top: 20px;
+        }
+
+        #BlogPostCategory {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .postDesc {
+            float: right;
+            width: 100%;
+            text-align: right;
+            margin-top: 20px;
+            font-size: 13px;
+            font-weight: 300;
+            padding-right: 0 !important;
+            color: #314659 !important;
+            clear: both;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
+
     {% if post %}
 
-        <p>
-            {% autoescape off %}
-                {{ post.content_html }}
-            {% endautoescape %}
-        </p>
-
-
+        {{ post.content_html|safe }}
+        <div style="position: fixed; float: right; width: 200px; height: 500px; top:60px;right:0px;">
+            {{ post.toc|safe }}
+        </div>
         <!--标签-->
         <div>标签：
             {% for t in post.tag.all %}
@@ -86,8 +87,9 @@
 
         <div id="MySignature">
             <div class="esa-post-signature">
-                <p>作者:&nbsp;<a href="{% url 'blog:index' blog_name %}">{{ post.blog.user.username }}</a></p>
-                <p>出处:&nbsp;<a href="{% url 'blog:post' blog_name post.id %}">{% url 'blog:post' blog_name post.id %}</a></p>
+                <p>作者:&nbsp;<a href="{% url 'user:index' %}">{{ post.blog.user.username }}</a></p>
+                <p>出处:&nbsp;<a
+                        href="{% url 'blog:post' blog_name post.id %}">{% url 'blog:post' blog_name post.id %}</a></p>
                 <p>版权:&nbsp;本文采用
                     <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
                         署名-非商业性使用-相同方式共享 4.0 国际
@@ -99,7 +101,8 @@
 
         <div id="blog_post_info_block">
             <div id="BlogPostCategory">
-                分类: <a href="{% url 'blog:category' blog_name post.category.id %}" target="_blank">{{ post.category.name }}</a>
+                分类: <a href="{% url 'blog:category' blog_name post.category.id %}"
+                       target="_blank">{{ post.category.name }}</a>
                 {% for tag in post.tag.all %}
                     标签: <a href="{% url 'blog:tag' blog_name tag.id %}">{{ tag.name }}</a>
                 {% endfor %}
@@ -108,7 +111,7 @@
 
         <div class="postDesc">
             posted @ <span id="post-date">{{ post.created_time }}</span>&nbsp;
-            <a href="{% url 'user:index' post.blog.user.id %}">{{ post.blog.user.username }}</a>&nbsp;
+            <a href="{% url 'user:index' %}">{{ post.blog.user.username }}</a>&nbsp;
             阅读(<span id="post_view_count">{{ post.pv }}</span>)&nbsp;
             评论(<span id="post_comment_count">{{ post.comment_set.count }}</span>)&nbsp;
             <a href="{% url 'admin:blog_post_change' post.id %}">编辑</a>

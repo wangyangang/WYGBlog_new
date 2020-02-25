@@ -6,30 +6,11 @@
     <meta charset="UTF-8">
     <title>{% block title %}首页{% endblock %} - WYG博客</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    {#    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.css">#}
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link href="https://cdn.bootcss.com/highlight.js/9.15.8/styles/github.min.css" rel="stylesheet">
+
     <style>
-        body {
-            font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif !important;
-            color: #314659 !important;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        li {
-            list-style: none;
-            padding: 0;
-        }
-
-        a {
-            transition: all .3s ease !important;
-            color: #314659;
-        }
-
         .fixed-header {
             position: sticky;
             position: -webkit-sticky;
@@ -37,8 +18,34 @@
             z-index: 999;
         }
 
-        .main2 {
-            padding: 15px 10px 0 10px;
+        .codehilite {
+            padding: 0;
+        }
+
+        /* for block of numbers */
+        .hljs-ln-numbers {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            text-align: center;
+            color: #ccc;
+            border-right: 1px solid #CCC;
+            vertical-align: top;
+            padding-right: 5px;
+        }
+
+        .hljs-ln-n {
+            width: 30px;
+        }
+
+        /* for block of code */
+        .hljs-ln .hljs-ln-code {
+            padding-left: 10px;
+            white-space: pre;
         }
     </style>
     {% block extra_head %}
@@ -56,32 +63,56 @@
             </div>
 
             <div style="float: right">
-                <ul class="nav navbar-nav">
-                    {% for top_bar in top_bars %}
-                        <li class="nav-item">
-                            {% if top_bar.display_type == 1 %}
-                                <a class="nav-link" href="{{ top_bar.link }}" target="_blank">{{ top_bar.name }}</a>
-                            {% else %}
-                                <a class="nav-link" href="{{ top_bar.link }}">{{ top_bar.name }}</a>
+                <div style="float: left">
+                    <ul class="nav navbar-nav">
+                        {% for top_bar in top_bars %}
+                            <li class="nav-item">
+                                {% if top_bar.display_type == 1 %}
+                                    <a class="nav-link" href="{{ top_bar.link }}" target="_blank">{{ top_bar.name }}</a>
+                                {% else %}
+                                    <a class="nav-link" href="{{ top_bar.link }}">{{ top_bar.name }}</a>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                        <li class="nav-item"><a href="#" class="nav-link">|</a></li>
+                        {% for nav_category in nav_categories %}
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   href="{% url 'blog:category' blog_name nav_category.id %}">{{ nav_category.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div style="float: left;">
+                    <form action="{% url 'blog:search' blog_name %}" class="navbar-form navbar-right" method="get">
+                        <input type="search" class="form-control mr-sm-2"
+                               placeholder="Search" aria-label="Search" name="keyword" value="{{ keyword }}">
+                        <button class="btn btn-outline-success" type="submit">搜索</button>
+                    </form>
+                </div>
+                <div class="dropdown" style="float: right;margin: 8px 0 0 10px">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <a href="#">
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            {% if user.is_authenticated %}
+                                <span class="glyphicon-class">{{ user.username }}</span>
                             {% endif %}
-                        </li>
-                    {% endfor %}
-                    <li class="nav-item"><a href="#" class="nav-link">|</a></li>
-                    {% for nav_category in nav_categories %}
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="{% url 'blog:category' blog_name nav_category.id %}">{{ nav_category.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-
-                <form action="{% url 'blog:search' blog_name %}" class="navbar-form navbar-right" method="get">
-                    <input type="search" class="form-control mr-sm-2"
-                           placeholder="Search" aria-label="Search" name="keyword" value="{{ keyword }}">
-                    <button class="btn btn-outline-success" type="submit">搜索</button>
-                </form>
+                        </a>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'user:index' %}">我的主页</a></li>
+                            <li><a href="{% url 'logout' %}?next={{ request.path }}">注销</a></li>
+                            <li role="separator" class="divider"></li>
+                        {% else %}
+                            <li><a href="{% url 'user:register' %}?next={{ request.path }}">注册</a></li>
+                            <li><a href="{% url 'login' %}?next={{ request.path }}">登录</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-
         </div>
     </nav>
 </div>
@@ -130,5 +161,14 @@
         </div>
     {% endblock %}
 </footer>
+
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/dropdown.js' %}"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.8/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
 </body>
 </html>
