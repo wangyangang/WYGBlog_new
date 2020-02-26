@@ -11,15 +11,13 @@ from blog.models import Post
 class CommonViewMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # blog_name = kwargs.get('blog_name')
 
         context.update({'sidebars': SideBar.get_all()})  # 侧边栏
         context.update(SiteCategory.get_all())  # 分类导航
         context.update({'top_bars': TopBar.get_all()})  # 顶部菜单
 
-        blog_setting = BlogSettings.get_dict()  # 用户设置
-        context.update(dict(blog_setting))  # 用户配置
-        # context.update({'blog_name': blog_name})
+        blog_setting = BlogSettings.get_dict()  # 站点配置
+        context.update(dict(blog_setting))
         return context
 
 

@@ -15,7 +15,6 @@
             top: 0;
             z-index: 999;
         }
-
     </style>
     {% block extra_head %}
 
@@ -27,7 +26,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div style="float: left">
                 <ul class="nav navbar-nav">
-                    <li class="nav-item"><a href="#" class="nav-link">首页</a></li>
+                    <li class="nav-item"><a href="{% url 'home:index' %}" class="nav-link">首页</a></li>
                 </ul>
             </div>
 
@@ -38,12 +37,18 @@
                             <li class="nav-item">
                                 {% if top_bar.display_type == 1 %}
                                     <a class="nav-link" href="{{ top_bar.link }}" target="_blank">{{ top_bar.name }}</a>
+                                {% elif top_bar.display_type == 2 %}
+                                    {% if user.is_authenticated %}
+                                        {#我的博客顶栏，只有当用户登录了才显示，href根据当前用户动态填充#}
+                                        <a class="nav-link"
+                                           href="{% url 'blog:index' user.blog.name %}">{{ top_bar.name }}</a>
+                                    {% endif %}
                                 {% else %}
                                     <a class="nav-link" href="{{ top_bar.link }}">{{ top_bar.name }}</a>
                                 {% endif %}
                             </li>
                         {% endfor %}
-                        <li class="nav-item"><a href="#" class="nav-link">|</a></li>
+                        {#                        <li class="nav-item"><a href="#" class="nav-link">|</a></li>#}
                         {% for nav_category in nav_categories %}
                             <li class="nav-item">
                                 <a class="nav-link"

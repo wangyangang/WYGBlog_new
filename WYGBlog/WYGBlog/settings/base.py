@@ -27,7 +27,7 @@ SECRET_KEY = 'b@ldd@+uc6eo(2l)xg$2*-em(rf&37_^!6-i!c9m_atjn1fiz7'
 # AUTH_USER_MODEL = 'django.contrib.auth.models.User'
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.wangyangang.com']
 
 
 # Application definition
@@ -134,7 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/tmp/static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'themes', THEME, 'static'),
 ]
@@ -163,7 +163,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-LOGIN_URL = ('/user/login/')
+LOGIN_URL = ('/login/')
 
 # 而是通过在地址栏输入url来访问的，那么我们得不到用户上一个页面的路径，即无法知道登录和
 # 注销页面url的next参数值，因此无法跳转。这时通过配置REDIRECT_URL，使其跳转回首页即可。

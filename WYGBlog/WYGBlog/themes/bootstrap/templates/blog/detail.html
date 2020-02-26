@@ -60,12 +60,14 @@
             float: right;
             width: 100%;
             text-align: right;
-            margin-top: 20px;
             font-size: 13px;
             font-weight: 300;
             padding-right: 0 !important;
             color: #314659 !important;
             clear: both;
+            margin-top: 1px;
+            border-top: 1px solid slategray;
+            margin-bottom: 10px;
         }
     </style>
 {% endblock %}
@@ -75,9 +77,6 @@
     {% if post %}
 
         {{ post.content_html|safe }}
-        <div style="position: fixed; float: right; width: 200px; height: 500px; top:60px;right:0px;">
-            {{ post.toc|safe }}
-        </div>
         <!--标签-->
         <div>标签：
             {% for t in post.tag.all %}
@@ -87,7 +86,7 @@
 
         <div id="MySignature">
             <div class="esa-post-signature">
-                <p>作者:&nbsp;<a href="{% url 'user:index' %}">{{ post.blog.user.username }}</a></p>
+                <p>作者:&nbsp;<a href="{% url 'blog:index' post.blog.name %}">{{ post.blog.user.username }}</a></p>
                 <p>出处:&nbsp;<a
                         href="{% url 'blog:post' blog_name post.id %}">{% url 'blog:post' blog_name post.id %}</a></p>
                 <p>版权:&nbsp;本文采用
@@ -101,8 +100,7 @@
 
         <div id="blog_post_info_block">
             <div id="BlogPostCategory">
-                分类: <a href="{% url 'blog:category' blog_name post.category.id %}"
-                       target="_blank">{{ post.category.name }}</a>
+                分类: <a href="{% url 'blog:category' blog_name post.category.id %}">{{ post.category.name }}</a>
                 {% for tag in post.tag.all %}
                     标签: <a href="{% url 'blog:tag' blog_name tag.id %}">{{ tag.name }}</a>
                 {% endfor %}
@@ -111,7 +109,7 @@
 
         <div class="postDesc">
             posted @ <span id="post-date">{{ post.created_time }}</span>&nbsp;
-            <a href="{% url 'user:index' %}">{{ post.blog.user.username }}</a>&nbsp;
+            <a href="{% url 'blog:index' post.blog.name %}">{{ post.blog.user.username }}</a>&nbsp;
             阅读(<span id="post_view_count">{{ post.pv }}</span>)&nbsp;
             评论(<span id="post_comment_count">{{ post.comment_set.count }}</span>)&nbsp;
             <a href="{% url 'admin:blog_post_change' post.id %}">编辑</a>
@@ -120,4 +118,35 @@
         {% comment_block post blog_name %}
     {% endif %}
 
+{% endblock %}
+
+{% block toc %}
+    <div id="my-toc">
+        {{ post.toc|safe }}
+    </div>
+{% endblock %}
+
+{% block jsblock %}
+    <script type="text/javascript">
+        window.onload =
+            function () {
+                var oDiv = document.getElementById("my-toc"),
+                    H = -50,
+                    Y = oDiv
+                while (Y) {
+                    H += Y.offsetTop;
+                    Y = Y.offsetParent
+                }
+                window.onscroll = function () {
+                    var s = document.body.scrollTop || document.documentElement.scrollTop
+                    if (s > H) {
+                        {#oDiv.style = "position:fixed; top:50px; width:260px;"#}
+                        oDiv.className = 'my-toc-fixed'
+                    } else {
+                        {#oDiv.style = "width:260px;"#}
+                        oDiv.className = 'my-toc'
+                    }
+                }
+            }
+    </script>
 {% endblock %}

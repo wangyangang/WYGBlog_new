@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from home.models import Blog
 
+
 class BaseOwnerAdmin(admin.ModelAdmin):
     """
     1.用来自动补充文章、分类、标签、侧边栏、友链、站点配置这些MOdel的owner字段

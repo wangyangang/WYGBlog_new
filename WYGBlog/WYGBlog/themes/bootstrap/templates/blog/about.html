@@ -1,0 +1,130 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% load comment_block %}
+
+{% block title %}
+    about页面
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/highlight_googlecode.css' %}">
+    <script src="{% static 'js/highlight.js' %}"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <style>
+        .esa-post-signature {
+            padding: 12px 24px 12px 30px;
+            margin-top: 15px;
+            margin-left: 5px;
+            border-left-width: 4px;
+            font-size: 15px;
+            line-height: 2;
+            border-left-style: solid;
+            background-color: #f8f8f8;
+            position: relative;
+            border-bottom-right-radius: 2px;
+            border-top-right-radius: 2px;
+            border-left-color: #2D8CF0;
+            z-index: 1;
+        }
+
+        .esa-post-signature:before {
+            content: "!";
+            background-color: #2D8CF0;
+            position: absolute;
+            top: 25px;
+            left: -12px;
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 100%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .esa-post-signature p {
+            margin: 0 !important;
+        }
+
+        #blog_post_info_block {
+            margin-top: 20px;
+        }
+
+        #BlogPostCategory {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .postDesc {
+            float: right;
+            width: 100%;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 300;
+            padding-right: 0 !important;
+            color: #314659 !important;
+            clear: both;
+            margin-top: 1px;
+            border-top: 1px solid slategray;
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if about %}
+        {{ about.content_html|safe }}
+        <div id="MySignature">
+            <div class="esa-post-signature">
+                <p>作者:&nbsp;<a href="{% url 'user:index' %}">{{ about.blog.user.username }}</a></p>
+                <p>出处:&nbsp;<a href="{% url 'blog:about' blog_name %}">{% url 'blog:about' blog_name %}</a></p>
+                <p>版权:&nbsp;本文采用
+                    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
+                        署名-非商业性使用-相同方式共享 4.0 国际
+                    </a>
+                    知识共享许可协议进行许可。
+                </p>
+            </div>
+        </div>
+
+        <div class="postDesc">
+            posted @ <span id="post-date">{{ about.created_time }}</span>&nbsp;
+            <a href="{% url 'user:index' %}">{{ about.blog.user.username }}</a>&nbsp;
+            阅读(<span id="post_view_count">{{ about.pv }}</span>)&nbsp;
+            <a href="{% url 'admin:config_aboutpage_change' about.id %}">编辑</a>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block toc %}
+    <div id="my-toc">
+        {{ about.toc|safe }}
+    </div>
+{% endblock %}
+
+{% block jsblock %}
+    <script type="text/javascript">
+        window.onload =
+            function () {
+                var oDiv = document.getElementById("my-toc"),
+                    H = -50,
+                    Y = oDiv
+                while (Y) {
+                    H += Y.offsetTop;
+                    Y = Y.offsetParent
+                }
+                window.onscroll = function () {
+                    var s = document.body.scrollTop || document.documentElement.scrollTop
+                    if (s > H) {
+                        {#oDiv.style = "position:fixed; top:50px; width:260px;"#}
+                        oDiv.className = 'my-toc-fixed'
+                    } else {
+                        {#oDiv.style = "width:260px;"#}
+                        oDiv.className = 'my-toc'
+                    }
+                }
+            }
+    </script>
+{% endblock %}

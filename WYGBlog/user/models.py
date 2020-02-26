@@ -5,7 +5,7 @@ from django.contrib.sites.models import Site
 
 
 class BlogUser(AbstractUser):
-    nickname = models.CharField('用户名', max_length=100, null=True)
+    nickname = models.CharField('昵称', max_length=100, null=True, blank=True)
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     modified_time = models.DateTimeField('修改时间', auto_now_add=True)
 

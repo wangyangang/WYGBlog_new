@@ -6,18 +6,18 @@ from django.shortcuts import get_object_or_404, Http404
 from django.urls import reverse
 from django.core.cache import cache
 from django.views import View
-from django.views.generic import DetailView, ListView, RedirectView
+from django.views.generic import DetailView, ListView, RedirectView, TemplateView
 from django.db.models import Q, F
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
+from django.contrib.admin.sites import AdminSite
 
 import markdown
 
 from . import models
-from config.models import SideBar, Link, TopBar
+from config.models import SideBar, Link, TopBar, BlogSettings, AboutPage
 from comment.models import Comment
 from comment.forms import CommentForm
-from config.models import BlogSettings
 
 
 class CommonViewMixin:
@@ -114,12 +114,6 @@ class ArchiveView(IndexView):
         if blog_settings:
             ArchiveView.paginate_by = blog_settings.get_dict().get('archive_post_count')  # 归档页面每页展示条数
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     blog_name = self.kwargs.get('blog_name')
-    #     blog_settings = BlogSettings.get_dict_by_blog_name(blog_name)
-    #     archive_post_count = blog_settings
-
 
 class PostDetailView(CommonViewMixin, DetailView):
     template_name = 'blog/detail.html'
@@ -129,7 +123,6 @@ class PostDetailView(CommonViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'blog_name': self.kwargs.get('blog_name')})
         md = markdown.Markdown(extensions=[
             'markdown.extensions.toc',
             'markdown.extensions.extra',
@@ -138,6 +131,7 @@ class PostDetailView(CommonViewMixin, DetailView):
         post = context.get('post')
         post.content_html = md.convert(post.content)
         post.toc = md.toc
+        context.update({'post': post})
         return context
 
     def get(self, request, *args, **kwargs):
@@ -148,7 +142,6 @@ class PostDetailView(CommonViewMixin, DetailView):
     def get_queryset(self, *args, **kwargs):
         blog_name = self.kwargs.get('blog_name')
         posts = models.Post.latest_posts(blog_name)
-
         return posts
 
     def handle_visited(self):
@@ -172,18 +165,15 @@ class PostDetailView(CommonViewMixin, DetailView):
         elif increase_uv:
             models.Post.objects.filter(pk=self.object.id).update(uv=F('uv') + 1)
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     return context
-
 
 class LinkListView(CommonViewMixin, ListView):
     template_name = 'config/links.html'
-    queryset = Link.objects.filter(status=Link.STATUS_NORMAL)
+    # queryset = Link.objects.filter(status=Link.STATUS_NORMAL).order_by('-weight')
     context_object_name = 'links'
 
     def get_queryset(self):
-        return Link.get_all_by_blog_name(self.request.user)
+        links = Link.get_all_by_blog_name(self.kwargs.get('blog_name'))
+        return links
 
 
 class SearchView(IndexView):
@@ -207,17 +197,63 @@ class AuthorView(IndexView):
         return queryset.filter()
 
 
-class AboutListView(IndexView):
-    template_name = 'about.html'
+class AboutView(CommonViewMixin, TemplateView):
+    template_name = 'blog/about.html'
+    context_object_name = 'about'
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        self.handle_visited()
+        return response
 
-# def blog_view(request, username):
-#     if request.method == 'GET':
-#         user = User.objects.filter(username=username)
-#         if user:
-#             return redirect('index')
-#         else:
-#             return HttpResponse('页面不存在')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        blog_name = context.get('blog_name')
+        about_objs = AboutPage.objects.filter(blog__name=blog_name)
+        if not about_objs:
+            return context
+
+        md = markdown.Markdown(extensions=[
+            'markdown.extensions.toc',
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite'
+        ])
+        about_objs[0].content_html = md.convert(about_objs[0].content)
+        about_objs[0].toc = md.toc
+        context.update({'about': about_objs[0]})
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        blog_name = self.kwargs.get('blog_name')
+        posts = models.Post.latest_posts(blog_name)
+
+        return posts
+
+    def handle_visited(self):
+        increase_pv = False
+        increase_uv = False
+        uid = self.request.uid
+        pv_key = 'pv:%s:%s' % (uid, self.request.path)
+        uv_key = 'uv:%s:%s:%s' % (uid, str(date.today()), self.request.path)
+        if not cache.get(pv_key):
+            increase_pv = True
+            cache.set(pv_key, 1, 1 * 60)
+
+        if not cache.get(uv_key):
+            increase_uv = True
+            cache.set(pv_key, 1, 24 * 60 * 60)
+
+        obj = AboutPage.objects.all()
+
+        if increase_pv and increase_uv and obj:
+            obj.update(pv=F('pv') + 1, uv=F('uv') + 1)
+        elif increase_pv and obj:
+            obj.update(pv=F('pv') + 1)
+        elif increase_uv and obj:
+            obj.update(uv=F('uv') + 1)
+
 
 class Redirect2HomeView(RedirectView):
     pattern_name = 'home:index'
+
+

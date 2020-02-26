@@ -7,6 +7,7 @@
 from django.contrib.admin import AdminSite
 from django.shortcuts import reverse
 from django.contrib.auth.models import User, Group
+from django.contrib.sites.models import Site
 
 from home.models import Blog
 from home.admin import BlogAdmin
@@ -23,7 +24,7 @@ class WYGBlogAdminSite(AdminSite):
         super().__init__(name)
 
     def has_permission(self, request):
-        return request.user.is_staff  # staff才可以访问
+        return request.user.is_superuser  # staff才可以访问
 
 
 admin_site = WYGBlogAdminSite(name='admin-site')
@@ -34,6 +35,7 @@ admin_site.register(SideBar, SideBarAdmin)
 admin_site.register(BlogSettings, BlogSettingsAdmin)
 
 # admin_site.register(User)
+admin_site.register(Site)
 admin_site.register(BlogUser)
 admin_site.register(Group)
 # admin_site.site_url = reverse('blog:index', kwargs={'blog_name': 'wyg'})

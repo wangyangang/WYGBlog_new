@@ -21,7 +21,7 @@ urlpatterns = [
     re_path(r'^links/$', views.LinkListView.as_view(), name='links'),
     re_path(r'^search/$', views.SearchView.as_view(), name='search'),
     re_path(r'^author/(?P<owner_id>\d+)/$', views.AuthorView.as_view(), name='author'),
-    re_path('about/', views.AboutListView.as_view(), name='about'),
+    re_path('about/', views.AboutView.as_view(), name='about'),
     # re_path(r'^$', views.Redirect2HomeView.as_view(), name='index'),
     path('', views.IndexView.as_view(), name='index'),
     # rest_framework

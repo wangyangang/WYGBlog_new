@@ -4,5 +4,10 @@ from django.contrib.auth.models import User
 from .models import BlogUser
 
 
-admin.site.register(BlogUser)
-# admin.site.unregister(User)
+class BlogUserAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(username=request.user.username)
+
+
+admin.site.register(BlogUser, BlogUserAdmin)

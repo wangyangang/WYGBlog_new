@@ -4,11 +4,14 @@ from django.utils.html import format_html
 
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
+from django.contrib.sites.models import Site
 
 from home.models import Blog
 from .models import Category, Tag, Post
 from .adminforms import PostAdminForm
 from baseadmin import BaseOwnerAdmin
+from user.models import BlogUser
+
 from WYGBlog.admin_site import admin_site
 
 
@@ -113,12 +116,18 @@ class PostAdmin(BaseOwnerAdmin):
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ['object_repr', 'object_id', 'action_flag', 'user', 'change_message']
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.filter(user=request.user)
+        return queryset
+
 
 admin.site.site_header = 'WYGBlog后台管理系统'  # 后台管理主界面的h1标题
 admin.site.site_title = 'WYGBlog后台管理'  # 后台管理page的title，如 "选择分类来修改 | WYGBlog后台管理"
 # admin.site.index_title = 'abc'  # 后台管理主界面的副标题
-# admin.site.unregister(User)
-# admin.site.unregister(Group)
+admin.site.unregister(BlogUser)
+admin.site.unregister(Group)
+admin.site.unregister(Site)
 # admin_site.register(User)
 # admin_site.register(Group)
 # admin.site.site_url = reverse('blog:index', kwargs={'blog_name': 'wyg'})

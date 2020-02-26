@@ -16,10 +16,10 @@ class TopBarAdmin(admin.ModelAdmin):
     list_display = ['name', 'display_type', 'show_type', 'display_index', 'content']
 
     def save_model(self, request, obj, form, change):
-        if obj.display_type == TopBar.DISPLAY_MY_BLOG:  # 我的博客
-            blog_name = request.user.blog.name
-            obj.link = reverse('blog:index', kwargs={'blog_name': request.user.blog.name})
-        elif obj.display_type == TopBar.DISPLAY_HOME:
+        # if obj.display_type == TopBar.DISPLAY_MY_BLOG:  # 我的博客
+        #     blog_name = request.user.blog.name
+        #     obj.link = reverse('blog:index', kwargs={'blog_name': request.user.blog.name})
+        if obj.display_type == TopBar.DISPLAY_HOME:
             obj.link = reverse('home:index')
         elif obj.display_type == TopBar.DISPLAY_ADMIN:
             obj.link = reverse('admin-site:index')

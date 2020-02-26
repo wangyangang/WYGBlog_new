@@ -24,7 +24,7 @@ class SideBarAdmin(BaseOwnerAdmin):
 class BlogSettingsAdmin(BaseOwnerAdmin):
     def has_add_permission(self, request):
         """一个用户只能创建一个站点配置"""
-        if self.model.objects.count() >= 1:
+        if self.model.objects.filter(blog__name=request.user.blog.name).count() >= 1:
             return False
         return super().has_add_permission(request)
 
@@ -40,9 +40,8 @@ class TopBarAdmin(BaseOwnerAdmin):
             obj.link = reverse('blog:archive', kwargs={'blog_name': request.user.blog.name})
         elif obj.display_type == models.TopBar.DISPLAY_HOME:  # 首页
             obj.link = reverse('home:index')
-        elif obj.display_type == models.TopBar.DISPLAY_MY_BLOG:
-            obj.link = reverse('blog:index', kwargs={'blog_name': request.user.blog.name})
-            # reverse('blog:index', kwargs={'blog_name': 'wyg'})
+        # elif obj.display_type == models.TopBar.DISPLAY_MY_BLOG:
+        #     obj.link = reverse('blog:index', kwargs={'blog_name': request.user.blog.name})
         elif obj.display_type == models.TopBar.DISPLAY_ADMIN:  # 管理
             obj.link = reverse('admin:index')
         elif obj.display_type == models.TopBar.DISPLAY_URL:  # 自定义HTML
@@ -54,4 +53,12 @@ class TopBarAdmin(BaseOwnerAdmin):
         return super().save_model(request, obj, form, change)
 
 
-# admin.site.site_url = reverse('blog:index', kwargs={'blog_name': 'wyg'})
+@admin.register(models.AboutPage)
+class AboutPageAdmin(BaseOwnerAdmin):
+    fields = ['content']
+
+    def has_add_permission(self, request):
+        count = self.model.objects.filter(blog__name=request.user.blog.name).count()
+        if count >= 1:
+            return False
+        return super().has_add_permission(request)
