@@ -43,8 +43,11 @@
                                         <a class="nav-link"
                                            href="{% url 'blog:index' user.blog.name %}">{{ top_bar.name }}</a>
                                     {% endif %}
-                                {% else %}
-                                    <a class="nav-link" href="{{ top_bar.link }}">{{ top_bar.name }}</a>
+                                {% elif top_bar.display_type == 3 %}
+{#                                    只有超级用户，才会显示管理功能#}
+                                    {% if user.is_superuser %}
+                                        <a class="nav-link" href="{{ top_bar.link }}">{{ top_bar.name }}</a>
+                                    {% endif %}
                                 {% endif %}
                             </li>
                         {% endfor %}

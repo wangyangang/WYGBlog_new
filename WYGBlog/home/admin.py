@@ -13,3 +13,7 @@ class BlogAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return request.user.is_superuser
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        return super().save_model(request, obj, form, change)

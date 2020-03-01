@@ -19,9 +19,9 @@ class TopBarAdmin(admin.ModelAdmin):
         # if obj.display_type == TopBar.DISPLAY_MY_BLOG:  # 我的博客
         #     blog_name = request.user.blog.name
         #     obj.link = reverse('blog:index', kwargs={'blog_name': request.user.blog.name})
-        if obj.display_type == TopBar.DISPLAY_HOME:
-            obj.link = reverse('home:index')
-        elif obj.display_type == TopBar.DISPLAY_ADMIN:
+        # if obj.display_type == TopBar.DISPLAY_HOME:
+        #     obj.link = reverse('home:index')
+        if obj.display_type == TopBar.DISPLAY_ADMIN:
             obj.link = reverse('admin-site:index')
         elif obj.display_type == TopBar.DISPLAY_URL:
             obj.link = obj.content  # 把用户填的content字段里的连接内容赋值给link。Template同意用obj.link调用

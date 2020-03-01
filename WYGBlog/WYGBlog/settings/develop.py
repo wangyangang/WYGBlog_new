@@ -13,9 +13,10 @@ DATABASES = {
     'default': {
         "ENGINE": 'django.db.backends.mysql',
         "NAME": 'wyg_blog',
-        'HOST': 'localhost',
+        'HOST': '120.25.224.111',
+        # 'HOST': 'localhost',
         'PORT': 3306,
         'USER': 'root',
-        'PASSWORD': '456wyg31',
+        'PASSWORD': '456wyg',
     }
 }

@@ -40,8 +40,6 @@ class TopBarAdmin(BaseOwnerAdmin):
             obj.link = reverse('blog:archive', kwargs={'blog_name': request.user.blog.name})
         elif obj.display_type == models.TopBar.DISPLAY_HOME:  # 首页
             obj.link = reverse('home:index')
-        # elif obj.display_type == models.TopBar.DISPLAY_MY_BLOG:
-        #     obj.link = reverse('blog:index', kwargs={'blog_name': request.user.blog.name})
         elif obj.display_type == models.TopBar.DISPLAY_ADMIN:  # 管理
             obj.link = reverse('admin:index')
         elif obj.display_type == models.TopBar.DISPLAY_URL:  # 自定义HTML

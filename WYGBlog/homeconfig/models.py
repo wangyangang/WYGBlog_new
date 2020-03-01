@@ -16,7 +16,6 @@ class Category(models.Model):
                                          default=STATUS_NORMAL,
                                          verbose_name='状态')
     is_nav = models.BooleanField(default=False, verbose_name='是否为导航')
-    # blog = models.ForeignKey(Blog, verbose_name='所属博客', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     class Meta:
@@ -57,19 +56,18 @@ class SideBar(models.Model):
         (DISPLAY_HTML, 'HTML'),
         (DISPLAY_HOT, '最热文章'),
     )
-    display_index = models.PositiveIntegerField('展示顺序数字大的靠前', default=1, blank=True)
     title = models.CharField('标题', max_length=50, unique=True)
     display_type = models.PositiveIntegerField(default=1,
                                                choices=SIDE_TYPE,
                                                verbose_name='展示类型')
+    display_index = models.PositiveIntegerField('展示顺序数字大的靠前', default=1, blank=True)
     content = models.CharField(max_length=500,
                                blank=True,
                                verbose_name='内容',
-                               help_text='如果展示的部署HTML类型，不可为空')
+                               help_text='如果展示的是HTML类型，不可为空')
     status = models.PositiveIntegerField(default=STATUS_SHOW,
                                          choices=STATUS_ITEMS,
                                          verbose_name='状态')
-    # owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
 
     def __str__(self):
@@ -117,26 +115,15 @@ class SideBar(models.Model):
 
 
 class TopBar(models.Model):
-    # STATUS_SHOW = 1
-    # STATUS_HIDE = 0
-    # STATUS_ITEMS = (
-    #     (STATUS_SHOW, '显示'),
-    #     (STATUS_HIDE, '隐藏')
-    # )
     DISPLAY_URL = 1  # 显示一个链接
     DISPLAY_MY_BLOG = 2  # 我的博客
     DISPLAY_ADMIN = 3  # 管理
-    DISPLAY_HOME = 4  # 首页链接
-    # DISPLAY_ARCHIVE = 5  # 归档
 
     DISPLAY_TYPE = (
         (DISPLAY_URL, '超链接'),
         (DISPLAY_MY_BLOG, '我的博客'),
-        # (DISPLAY_ARCHIVE, '归档'),
         (DISPLAY_ADMIN, '管理'),
-        (DISPLAY_HOME, '首页'),
     )
-    # DISPLAY_TYPE2 = ('超链接', '我的博客', '管理', '首页')
 
     name = models.CharField('名称', max_length=20, unique=True)
     display_type = models.PositiveIntegerField('类型', choices=DISPLAY_TYPE, default=1)
@@ -144,7 +131,6 @@ class TopBar(models.Model):
     display_index = models.PositiveIntegerField('数字越大显示越靠前', default=1)
     content = models.CharField('链接到的地址,超链接必须有内容', max_length=512, null=True, blank=True)
     link = models.CharField('链接,admin里save_model方法自动保存', max_length=512, null=True, blank=True)
-    # owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = verbose_name_plural = '顶部导航按钮'

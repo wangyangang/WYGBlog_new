@@ -8,7 +8,6 @@ from django.contrib.auth.models import AnonymousUser
 
 from mdeditor.fields import MDTextField
 
-
 from home.models import Blog
 
 
@@ -19,7 +18,7 @@ class Link(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除')
     )
-    title = models.CharField(max_length=50, verbose_name='标题', unique=True)
+    title = models.CharField(max_length=50, verbose_name='标题')
     href = models.URLField(verbose_name='链接')
     status = models.PositiveIntegerField(default=STATUS_NORMAL,
                                          choices=STATUS_ITEMS,
@@ -59,11 +58,11 @@ class SideBar(models.Model):
         (DISPLAY_HOTEST, '最热文章'),
         (DISPLAY_COMMENT, '最近评论'),
     )
-    display_index = models.PositiveIntegerField('展示顺序(数字大的靠前)', default=1, blank=True)
     title = models.CharField('标题', max_length=50)
     display_type = models.PositiveIntegerField(default=1,
                                                choices=SIDE_TYPE,
                                                verbose_name='展示类型')
+    display_index = models.PositiveIntegerField('展示顺序(数字大的靠前)', default=1, blank=True)
     content = models.CharField(max_length=500,
                                blank=True,
                                null=True,
@@ -118,7 +117,8 @@ class SideBar(models.Model):
         show_latest_article = user_settings['show_sidebar_latest_article']  # 是否显示最新文章
         show_hot_article = user_settings['show_sidebar_hot_article']  # 是否显示最热文章
 
-        user_sidebar = cls.objects.filter(status=cls.STATUS_SHOW, blog__name=blog_name).order_by('-display_index')  # 登录用户的所有侧边栏
+        user_sidebar = cls.objects.filter(status=cls.STATUS_SHOW, blog__name=blog_name).order_by(
+            '-display_index')  # 登录用户的所有侧边栏
         if not show_html:
             # 排除自定义HTML的sidebar
             user_sidebar = user_sidebar.exclude(display_type=SideBar.DISPLAY_HTML)
@@ -138,17 +138,10 @@ class SideBar(models.Model):
 
 
 class TopBar(models.Model):
-    # STATUS_SHOW = 1
-    # STATUS_HIDE = 0
-    # STATUS_ITEMS = (
-    #     (STATUS_SHOW, '显示'),
-    #     (STATUS_HIDE, '隐藏')
-    # )
     DISPLAY_URL = 1  # 显示一个链接
     DISPLAY_ARCHIVE = 2  # 归档
     DISPLAY_ADMIN = 3  # 管理
     DISPLAY_HOME = 4  # 博客园首页链接
-    # DISPLAY_MY_BLOG = 5  # 博客首页
     DISPLAY_LINKS = 5  # 友链
     DISPLAY_ABOUT = 6  # 关于
 
@@ -157,7 +150,6 @@ class TopBar(models.Model):
         (DISPLAY_ARCHIVE, '归档'),
         (DISPLAY_ADMIN, '管理'),
         (DISPLAY_HOME, '博客园首页'),
-        # (DISPLAY_MY_BLOG, '我的博客'),
         (DISPLAY_LINKS, '友链'),
         (DISPLAY_ABOUT, '关于'),
     )
