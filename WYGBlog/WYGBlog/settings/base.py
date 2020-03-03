@@ -24,10 +24,9 @@ SECRET_KEY = 'b@ldd@+uc6eo(2l)xg$2*-em(rf&37_^!6-i!c9m_atjn1fiz7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-# AUTH_USER_MODEL = 'django.contrib.auth.models.User'
 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.wangyangang.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.wangyangang.com', '120.25.224.111']
 
 
 # Application definition

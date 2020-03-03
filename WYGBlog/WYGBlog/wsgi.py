@@ -11,6 +11,8 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WYGBlog.settings')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WYGBlog.settings')
+profile = os.environ.get('WYGBLOG_PROFILE', 'develop')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WYGBlog.settings.%s' % profile)
 
 application = get_wsgi_application()
